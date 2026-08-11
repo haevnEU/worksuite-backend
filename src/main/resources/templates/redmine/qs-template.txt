@@ -1,0 +1,24 @@
+## 📝 Beschreibung
+*Was wurde gemacht und warum? (Kurzer Überblick)*
+- 
+
+## 🔗 Referenzen
+- **Ticket:** #1234 (Link zum Jira/Ticket-System)
+- **Verwandte MRs:** [Zugehörige Backend/Frontend MRs, falls vorhanden]
+
+## 🛠️ Wesentliche Änderungen
+*Welche Komponenten oder Logiken wurden angepasst? (Stichpunkte)*
+- [Refactor/Feature/Bugfix] in Komponente X
+- Neuer Datenbank-Index für Tabelle Y hinzugefügt
+- Abhängigkeit Z auf Version 2.0 aktualisiert
+
+## 🧪 Wie wurde es getestet?
+*Wie kann der Reviewer die Änderungen lokal verifizieren?*
+- [ ] Unit Tests lokal ausgeführt und erfolgreich
+- [ ] Manuell im Browser/Postman getestet mit folgendem Ablauf:
+  1. ...
+
+## 🚨 Wichtige Hinweise für den Reviewer
+- [ ] Beinhaltet Breaking Changes (z.B. API-Änderungen)
+- [ ] Erfordert neue Umgebungsvariablen (`.env`)
+- [ ] Erfordert ein Datenbank-Migrationsskript

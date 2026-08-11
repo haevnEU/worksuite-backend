@@ -1,0 +1,50 @@
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: ${MULTIPART_MAX_FILE_SIZE:100MB}
+      max-request-size: ${MULTIPART_MAX_REQUEST_SIZE:100MB}
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    generate-ddl: false
+    show-sql: ${SHOW_SQL:false}
+    properties:
+      hibernate:
+        format_sql: true
+
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterAccess=10m
+
+  mongodb:
+    uri: ${SPRING_MONGODB_URI}
+    representation:
+      uuid: standard
+
+jwt:
+  secret: ${JWT_SECRET}
+
+app:
+  redmine:
+    url: ${REDMINE_URL}
+    api-key: ${REDMINE_API_KEY}
+  vcs:
+    url: ${GITLAB_URL}
+    api-key: ${GITLAB_API_KEY}
+
+server:
+  forward-headers-strategy: framework
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    url: /v3/api-docs
