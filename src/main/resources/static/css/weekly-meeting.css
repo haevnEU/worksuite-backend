@@ -1,0 +1,93 @@
+.doc-title {
+    font-size: 18pt;
+    font-weight: bold;
+    color: #0f172a;
+    margin: 0 0 4px 0;
+}
+
+.created-at {
+    font-size: 9pt;
+    color: #64748b;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 13pt;
+    font-weight: bold;
+    color: #0f172a;
+    border-bottom: 1.5px solid #cbd5e1;
+    padding-bottom: 4px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.summary-block {
+    background-color: #f8fafc;
+    border-left: 3px solid #3b82f6;
+    padding: 8px 12px;
+    font-size: 9.5pt;
+    color: #334155;
+    margin-bottom: 24px;
+}
+
+.day-card {
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.day-header {
+    font-size: 11pt;
+    font-weight: bold;
+    color: #1e293b;
+    margin-top: 0;
+    margin-bottom: 4px;
+}
+
+.day-summary {
+    font-size: 9.5pt;
+    color: #475569;
+    margin: 0 0 8px 0;
+}
+
+.task-section-label {
+    font-size: 9pt;
+    font-weight: bold;
+    color: #64748b;
+    margin-bottom: 4px;
+}
+
+.empty-tasks {
+    font-size: 9pt;
+    color: #94a3b8;
+    font-style: italic;
+    margin: 0;
+}
+
+.task-list {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.task-list li {
+    font-size: 9.5pt;
+    color: #334155;
+    margin-bottom: 3px;
+}
+
+.day-summary,
+.summary-block,
+.task-list li {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    margin: 0;
+    padding: 0;
+}
+
+.day-header {
+    page-break-after: avoid;
+    break-after: avoid;
+}
+.day-card {
+    page-break-inside: auto;
+}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+    <head>
+        <meta charset="UTF-8"/>
+        <link rel="stylesheet" type="text/css" th:href="@{classpath:/static/css/base.css}"/>
+        <link rel="stylesheet" type="text/css" th:href="@{classpath:/static/css/retro.css}"/>
+    </head>
+    <body>
+        <div class="watermark" th:if="${isDraft}">VORLAGE</div>
+        <div class="header-export-date">
+            Erstellt am: <span th:text="${#temporals.format(headerExportDate, 'dd.MM.yyyy HH:mm')}"></span>
+        </div>
+        <div class="retro-header">
+            <h1 class="retro-title" th:text="${retro.sprintName}"></h1>
+            <p class="retro-subtitle">
+                ID: <span th:text="${retro.id}">uuid-1234</span> |
+                Erstellt am: <span th:text="${#temporals.format(retro.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+            </p>
+        </div>
+        <table class="retro-board">
+            <tr>
+                <td class="retro-column-td">
+                    <div class="retro-column column-positive">
+                        <div class="column-header">Gut gelaufen</div>
+                        <div th:if="${#lists.isEmpty(retro.positive)}" class="empty-state">
+                            Keine Einträge vorhanden.
+                        </div>
+                        <div th:each="item : ${retro.positive}"
+                                class="retro-card retro-card-positive page-break-avoid"
+                                th:text="${item}">
+                        </div>
+                    </div>
+                </td>
+                <td class="retro-column-td">
+                    <div class="retro-column column-negative">
+                        <div class="column-header">Schlecht gelaufen</div>
+                        <div th:if="${#lists.isEmpty(retro.negative)}" class="empty-state">
+                            Keine Einträge vorhanden.
+                        </div>
+                        <div th:each="item : ${retro.negative}"
+                                class="retro-card retro-card-negative page-break-avoid"
+                                th:text="${item}">
+                        </div>
+                    </div>
+                </td>
+                <td class="retro-column-td">
+                    <div class="retro-column column-action">
+                        <div class="column-header">Action Items</div>
+                        <div th:if="${#lists.isEmpty(retro.actionItems)}" class="empty-state">
+                            Keine Einträge vorhanden.
+                        </div>
+                        <div th:each="item : ${retro.actionItems}"
+                                class="retro-card retro-card-action page-break-avoid"
+                                th:text="${item}">
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

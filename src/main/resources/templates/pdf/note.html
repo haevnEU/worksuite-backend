@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8"/>
+        <link rel="stylesheet" type="text/css" th:href="@{classpath:/static/css/base.css}"/>
+        <link rel="stylesheet" type="text/css" th:href="@{classpath:/static/css/notes.css}"/>
+    </head>
+    <body>
+        <div class="watermark" th:if="${isDraft}">VORLAGE</div>
+        <div class="header-export-date" th:text="${#temporals.format(note.createdAt, 'dd.MM.yyyy HH:mm')}"></div>
+        <div class="note-card page-break-avoid">
+            <div class="note-header">
+                <table class="note-header-table">
+                    <tr>
+                        <td>
+                            <h1 class="note-title" th:text="${note.title}"></h1>
+                            <span class="ticket-badge" th:if="${note.ticketId}" th:text="${note.ticketId}"></span>
+                        </td>
+                        <td class="note-meta">
+                            Erstellt: <span th:text="${#temporals.format(note.createdAt, 'dd.MM.yyyy')}"></span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="note-content" th:text="${note.content}"></div>
+            <div class="note-footer">
+                ID: <span class="note-id" th:text="${note.id}"></span>
+            </div>
+        </div>
+    </body>
+</html>
