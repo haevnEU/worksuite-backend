@@ -1,0 +1,5 @@
+package de.haevn.worksuite.mock;
+
+public enum MockType {
+    MASTERDATA, CUSTOMER_EXCHANGE, SCHLEUPEN, HAUSHELD, INFRASTRUCTURE, SM_LEFTOVER, INFRA_LEFTOVER
+}

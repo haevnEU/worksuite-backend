@@ -1,0 +1,52 @@
+@page {
+    size: A4;
+    margin: 20mm;
+
+    @top-left {
+        content: "Worksuite - File Export";
+        font-family: 'Helvetica', sans-serif;
+        font-size: 8.5pt;
+        color: #64748b;
+    }
+
+    @top-right {
+        content: element(headerExportDate);
+    }
+
+    @bottom-right {
+        content: "Seite " counter(page) " von " counter(pages);
+        font-family: 'Helvetica', sans-serif;
+        font-size: 8.5pt;
+        color: #64748b;
+    }
+}
+
+body {
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    color: #1e293b;
+    font-size: 10pt;
+    line-height: 1.4;
+    margin: 0;
+    padding: 0;
+}
+
+.page-break-avoid {
+    page-break-inside: avoid;
+}
+
+.watermark {
+    position: fixed;
+    top: 30%;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 100pt;
+    font-weight: bold;
+    color: #e2e8f0;
+    -webkit-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+    z-index: -1;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+}

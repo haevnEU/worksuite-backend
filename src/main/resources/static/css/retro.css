@@ -1,0 +1,102 @@
+.header-export-date {
+    position: running(headerExportDate);
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 8.5pt;
+    color: #64748b;
+    text-align: right;
+}
+
+.retro-header {
+    margin-bottom: 24px;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 12px;
+}
+
+.retro-title {
+    font-size: 20pt;
+    font-weight: bold;
+    color: #0f172a;
+    margin: 0 0 6px 0;
+}
+
+.retro-subtitle {
+    font-size: 9pt;
+    color: #64748b;
+    margin: 0;
+}
+
+.retro-board {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 10px 0;
+    margin-left: -10px;
+    margin-right: -10px;
+}
+
+.retro-column-td {
+    width: 33.33%;
+    vertical-align: top;
+    padding: 0;
+}
+
+.retro-column {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 12px;
+    background-color: transparent;
+}
+
+.column-header {
+    font-size: 11pt;
+    font-weight: bold;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    border-bottom: 1.5px solid #e2e8f0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.column-positive .column-header {
+    color: #166534;
+    border-color: #bbf7d0;
+}
+
+.column-negative .column-header {
+    color: #991b1b;
+    border-color: #fecaca;
+}
+
+.column-action .column-header {
+    color: #1e40af;
+    border-color: #bfdbfe;
+}
+
+.retro-card {
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: transparent;
+    font-size: 9pt;
+    color: #334155;
+    word-wrap: break-word;
+}
+
+.retro-card-positive {
+    border-left: 3px solid #22c55e;
+}
+
+.retro-card-negative {
+    border-left: 3px solid #ef4444;
+}
+
+.retro-card-action {
+    border-left: 3px solid #3b82f6;
+}
+
+.empty-state {
+    font-size: 8.5pt;
+    color: #94a3b8;
+    font-style: italic;
+    padding: 6px 0;
+}

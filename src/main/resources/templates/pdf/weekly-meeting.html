@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8"/>
+        <link rel="stylesheet" th:href="@{classpath:/static/css/base.css}" type="text/css"/>
+        <link rel="stylesheet" th:href="@{classpath:/static/css/weekly-meeting.css}" type="text/css"/>
+    </head>
+    <body>
+        <div class="watermark" th:if="${isDraft}">VORLAGE</div>
+        <h1 class="doc-title" th:text="${meeting.title}"></h1>
+        <div class="created-at" th:text="'Erstellt am: ' + ${#temporals.format(headerExportDate, 'dd.MM.yyyy HH:mm', 'Europe/Berlin')}"></div>
+        <div th:if="${meeting.summary != null and !meeting.summary.isBlank()}">
+            <div class="section-title">Zusammenfassung</div>
+            <div class="summary-block" th:text="${meeting.summary}"></div>
+        </div>
+        <div class="section-title">Tagesprotokolle</div>
+        <div class="day-card page-break-avoid" th:each="day : ${meeting.daySummaries}">
+            <div class="day-header" th:text="${day.date != null ? #temporals.format(day.date, 'EEEE, dd.MM.yyyy', 'Europe/Berlin') : 'Tag'}"></div>
+            <p class="day-summary" th:if="${day.summary != null}" th:text="${day.summary}"></p>
+            <div class="task-section-label" th:if="${day.tasks != null and !day.tasks.empty}">
+                Tasks / Erledigtes:
+            </div>
+            <ul class="task-list" th:if="${day.tasks != null and !day.tasks.empty}">
+                <li th:each="task : ${day.tasks}" th:text="${task}">Eintrag 1</li>
+            </ul>
+            <p class="empty-tasks" th:if="${day.tasks == null or day.tasks.empty}">
+                Keine spezifischen Tasks erfasst.
+            </p>
+        </div>
+    </body>
+</html>
