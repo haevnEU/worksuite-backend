@@ -68,6 +68,10 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
+springBoot {
+    buildInfo()
+}
+
 tasks.named('test') {
     useJUnitPlatform()
 }
