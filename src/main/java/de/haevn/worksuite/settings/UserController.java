@@ -52,11 +52,11 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}/gitlab-key")
-    public ResponseEntity<Void> setGitlabKey(@PathVariable final UUID id,
-        @RequestHeader(name = "X-Gitlab-API-Key") final String gitlabKey) {
-        log.info("Setting Gitlab key for user with id: {}", id);
-        userService.setGitlabKey(id, gitlabKey);
+    @PutMapping("/{id}/vcs-key")
+    public ResponseEntity<Void> setVcsKey(@PathVariable final UUID id,
+        @RequestHeader(name = "X-VCS-API-Key") final String vcsKey) {
+        log.info("Setting VCS key for user with id: {}", id);
+        userService.setVcsKey(id, vcsKey);
         return ResponseEntity.noContent().build();
     }
 

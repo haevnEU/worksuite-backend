@@ -53,11 +53,11 @@ public class UserService {
     }
 
     @Transactional
-    public void setGitlabKey(final UUID id, final String gitlabKey) {
+    public void setVcsKey(final UUID id, final String vcsKey) {
         final UserModel model = userRepository.findById(id).orElseThrow(NotFoundException::new);
-        model.setGitlabKey(gitlabKey);
+        model.setVcsKey(vcsKey);
         websocketPushService.dispatch(
-            new WsEvent(this.getClass(), Priority.INFO, "Gitlab API-Key added for user: " + id));
+            new WsEvent(this.getClass(), Priority.INFO, "VCS API-Key added for user: " + id));
     }
 
     @Transactional

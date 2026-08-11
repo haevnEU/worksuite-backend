@@ -1,4 +1,4 @@
-package de.haevn.worksuite.gitlab;
+package de.haevn.worksuite.vcs;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

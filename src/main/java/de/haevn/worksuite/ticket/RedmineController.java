@@ -4,8 +4,8 @@ import de.haevn.redmine.api.RedmineException;
 import de.haevn.redmine.model.Issue;
 import de.haevn.worksuite.common.FileDownloadService;
 import de.haevn.worksuite.common.RestApiController;
-import de.haevn.worksuite.gitlab.GitLabService;
-import de.haevn.worksuite.gitlab.MrProtocolRequest;
+import de.haevn.worksuite.vcs.VcsService;
+import de.haevn.worksuite.vcs.MrProtocolRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +24,7 @@ public class RedmineController {
 
     private final FileDownloadService fileDownloadService;
     private final RedmineService redmineService;
-    private final GitLabService gitLabService;
+    private final VcsService vcsService;
 
     @GetMapping("")
     public List<Issue> listTickets() throws RedmineException {
@@ -49,7 +49,7 @@ public class RedmineController {
     @PostMapping("/{id}/merge-request")
     public void createMergeRequest(@PathVariable final long id, @RequestBody final MrProtocolRequest protocol)
         throws RedmineException {
-        final String mrLink = gitLabService.createMergeRequest("[#" + id + "]", protocol);
+        final String mrLink = vcsService.createMergeRequest("[#" + id + "]", protocol);
         redmineService.addMergeRequestLink(id, mrLink);
     }
 

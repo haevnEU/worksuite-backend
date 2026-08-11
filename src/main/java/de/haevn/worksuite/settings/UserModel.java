@@ -34,8 +34,8 @@ public class UserModel {
     @Column(name = "redmine_key")
     private String redmineKey;
 
-    @Column(name = "gitlab_key")
-    private String gitlabKey;
+    @Column(name = "vcs_key")
+    private String vcsKey;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

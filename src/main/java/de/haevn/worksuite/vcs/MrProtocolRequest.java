@@ -1,4 +1,4 @@
-package de.haevn.worksuite.gitlab;
+package de.haevn.worksuite.vcs;
 
 import jakarta.validation.constraints.NotBlank;
 

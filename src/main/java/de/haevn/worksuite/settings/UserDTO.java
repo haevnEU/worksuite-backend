@@ -3,16 +3,16 @@ package de.haevn.worksuite.settings;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record UserDTO(UUID id, String firstName, String lastName, String role, String redmineKey, String gitlabKey,
+public record UserDTO(UUID id, String firstName, String lastName, String role, String redmineKey, String vcsKey,
                       LocalDateTime createdAt, String avatarUrl) {
 
     public static UserDTO fromModel(final UserModel userModel) {
-        final String gitlabKey =
-            (userModel.getGitlabKey() == null || userModel.getGitlabKey().isEmpty()) ? null : "<REDACTED>";
+        final String vcsKey =
+            (userModel.getVcsKey() == null || userModel.getVcsKey().isEmpty()) ? null : "<REDACTED>";
         final String redmineKey =
             (userModel.getRedmineKey() == null || userModel.getRedmineKey().isEmpty()) ? null : "<REDACTED>";
         return new UserDTO(userModel.getId(), userModel.getFirstName(), userModel.getLastName(), userModel.getRole(),
-            redmineKey, gitlabKey, userModel.getCreatedAt(), userModel.getAvatarUrl());
+            redmineKey, vcsKey, userModel.getCreatedAt(), userModel.getAvatarUrl());
     }
 
     public UserModel toModel() {
@@ -22,7 +22,7 @@ public record UserDTO(UUID id, String firstName, String lastName, String role, S
         userModel.setLastName(lastName);
         userModel.setRole(role);
         userModel.setRedmineKey(redmineKey);
-        userModel.setGitlabKey(gitlabKey);
+        userModel.setVcsKey(vcsKey);
         userModel.setCreatedAt(createdAt);
         userModel.setAvatarUrl(avatarUrl);
         return userModel;

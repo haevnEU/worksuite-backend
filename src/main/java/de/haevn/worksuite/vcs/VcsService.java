@@ -1,4 +1,4 @@
-package de.haevn.worksuite.gitlab;
+package de.haevn.worksuite.vcs;
 
 import java.util.Collections;
 import java.util.List;
@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class GitLabService {
+public class VcsService {
 
-    @Value("${app.gitlab.url}")
-    private String gitlabBaseUrl;
+    @Value("${app.vcs.url}")
+    private String vcsUrl;
 
-    @Value("${app.gitlab.api-key:}")
-    private String gitlabToken;
+    @Value("${app.vcs.api-key:}")
+    private String vcsToken;
 
     @Value("${app.redmine.url:http://localhost/redmine}")
     private String redmineBaseUrl;
@@ -86,7 +86,7 @@ public class GitLabService {
         final String comment = buildMrDescription(protocol);
         log.info("Merge request comment: {}", comment);
 
-        return gitlabBaseUrl + "/...";
+        return vcsUrl + "/...";
     }
 
     public List<MergeRequestDto> getMyMergeRequests() {

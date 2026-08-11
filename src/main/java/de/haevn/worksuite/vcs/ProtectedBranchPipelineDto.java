@@ -1,4 +1,4 @@
-package de.haevn.worksuite.gitlab;
+package de.haevn.worksuite.vcs;
 public record ProtectedBranchPipelineDto(
     String id,
     String projectName,

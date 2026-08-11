@@ -28,6 +28,6 @@ app:
   redmine:
     url: ${REDMINE_URL}
     api-key: ${REDMINE_API_KEY}
-  gitlab:
+  vcs:
     url: ${GITLAB_URL}
     api-key: ${GITLAB_API_KEY}
