@@ -88,6 +88,7 @@
     page-break-after: avoid;
     break-after: avoid;
 }
+
 .day-card {
     page-break-inside: auto;
 }

@@ -2,35 +2,25 @@ package de.haevn.worksuite.ticket;
 
 import jakarta.validation.constraints.NotNull;
 
-public record QaProtocolRequest(
-    @NotNull(message = "Pipeline-Status muss angegeben werden")
-    Boolean pipelineSuccess,
+public record QaProtocolRequest(@NotNull(message = "Pipeline-Status muss angegeben werden") Boolean pipelineSuccess,
 
-    String pipelineFailReason,
+                                String pipelineFailReason,
 
-    @NotNull(message = "Rebase-Status muss angegeben werden")
-    Boolean rebaseExecuted,
+                                @NotNull(message = "Rebase-Status muss angegeben werden") Boolean rebaseExecuted,
 
-    String intro,
+                                String intro,
 
-    Boolean hasAcceptanceCriteria,
-    String acceptanceCriteria,
+                                Boolean hasAcceptanceCriteria, String acceptanceCriteria,
 
-    Boolean hasTestSetup,
-    String testSetup,
+                                Boolean hasTestSetup, String testSetup,
 
-    Boolean hasUnitTests,
-    String unitTests,
+                                Boolean hasUnitTests, String unitTests,
 
-    Boolean hasTestDatasets,
-    String testDatasets,
+                                Boolean hasTestDatasets, String testDatasets,
 
-    Boolean hasSideEffects,
-    String sideEffects,
+                                Boolean hasSideEffects, String sideEffects,
 
-    Boolean hasChangedEndpoints,
-    String changedEndpoints
-) {
+                                Boolean hasChangedEndpoints, String changedEndpoints) {
     public QaProtocolRequest {
         hasAcceptanceCriteria = Boolean.TRUE.equals(hasAcceptanceCriteria);
         hasTestSetup = Boolean.TRUE.equals(hasTestSetup);

@@ -1,9 +1,7 @@
 package de.haevn.worksuite.stats;
 
 import de.haevn.worksuite.common.RestApiController;
-import jakarta.persistence.PreUpdate;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,7 +39,8 @@ public class StatsController {
     }
 
     @PutMapping("/{id}")
-    public void incrementStats(@PathVariable final UUID id, @RequestParam final Stat stat, @RequestParam(defaultValue = "1") int amount) {
+    public void incrementStats(@PathVariable final UUID id, @RequestParam final Stat stat,
+        @RequestParam(defaultValue = "1") int amount) {
         statsService.incrementStat(id, stat, amount);
     }
 }

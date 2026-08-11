@@ -15,13 +15,13 @@ public class SnippetBeforeConvertCallback implements BeforeConvertCallback<Snipp
             entity.setId(UUID.randomUUID());
         }
 
-        if(entity.getCreatedAt() == null) {
+        if (entity.getCreatedAt() == null) {
             entity.setCreatedAt(LocalDateTime.now());
         }
 
-        if(entity.getTags() == null) {
+        if (entity.getTags() == null) {
             entity.setTags(List.of("Text"));
-        } else if(entity.getTags().isEmpty()) {
+        } else if (entity.getTags().isEmpty()) {
             entity.setTags(List.of("Text"));
         }
 

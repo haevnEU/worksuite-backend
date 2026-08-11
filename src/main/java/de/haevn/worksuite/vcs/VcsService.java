@@ -23,9 +23,7 @@ public class VcsService {
         final StringBuilder builder = new StringBuilder();
 
         if (isNotBlank(data.description())) {
-            builder.append("## Description\n\n")
-                .append(data.description().trim())
-                .append("\n\n");
+            builder.append("## Description\n\n").append(data.description().trim()).append("\n\n");
         }
 
         if (isNotBlank(data.ticketId())) {
@@ -33,17 +31,12 @@ public class VcsService {
             final String formattedTicketLabel = "#" + rawTicketId;
             final String ticketUrl = sanitizeBaseUrl(redmineBaseUrl) + "/issues/" + rawTicketId;
 
-            builder.append("**References:** [")
-                .append(formattedTicketLabel)
-                .append("](")
-                .append(ticketUrl)
+            builder.append("**References:** [").append(formattedTicketLabel).append("](").append(ticketUrl)
                 .append(")\n\n");
         }
 
         if (Boolean.TRUE.equals(data.hasImportantChanges()) && isNotBlank(data.importantChanges())) {
-            builder.append("## Important Changes\n\n")
-                .append(data.importantChanges().trim())
-                .append("\n\n");
+            builder.append("## Important Changes\n\n").append(data.importantChanges().trim()).append("\n\n");
         }
 
         final boolean hasUnits = Boolean.TRUE.equals(data.hasUnitTests()) && isNotBlank(data.unitTests());
@@ -53,22 +46,20 @@ public class VcsService {
             builder.append("## Testing Procedure\n\n");
 
             if (hasUnits) {
-                builder.append("### Unit Tests\n\n")
-                    .append(data.unitTests().trim())
-                    .append("\n\n");
+                builder.append("### Unit Tests\n\n").append(data.unitTests().trim()).append("\n\n");
             }
 
             if (hasManuals) {
-                builder.append("### Manual Tests\n\n")
-                    .append(data.manualTests().trim())
-                    .append("\n\n");
+                builder.append("### Manual Tests\n\n").append(data.manualTests().trim()).append("\n\n");
             }
         }
 
-        builder.append("## Notice Checklist\n\n")
-            .append("- [").append(Boolean.TRUE.equals(data.hasBreakingChanges()) ? "x" : " ").append("] Breaking changes present\n")
-            .append("- [").append(Boolean.TRUE.equals(data.hasDatabaseSchemaChanges()) ? "x" : " ").append("] Database schema adjusted\n")
-            .append("- [").append(Boolean.TRUE.equals(data.hasDatabaseViewsChanges()) ? "x" : " ").append("] Database Views / Functions / Triggers adjusted\n");
+        builder.append("## Notice Checklist\n\n").append("- [")
+            .append(Boolean.TRUE.equals(data.hasBreakingChanges()) ? "x" : " ").append("] Breaking changes present\n")
+            .append("- [").append(Boolean.TRUE.equals(data.hasDatabaseSchemaChanges()) ? "x" : " ")
+            .append("] Database schema adjusted\n").append("- [")
+            .append(Boolean.TRUE.equals(data.hasDatabaseViewsChanges()) ? "x" : " ")
+            .append("] Database Views / Functions / Triggers adjusted\n");
 
         return builder.toString().trim();
     }

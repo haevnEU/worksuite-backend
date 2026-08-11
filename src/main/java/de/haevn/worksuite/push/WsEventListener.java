@@ -1,4 +1,5 @@
 package de.haevn.worksuite.push;
+
 import de.haevn.worksuite.push.events.WsEvent;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.event.EventListener;

@@ -6,5 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface WeeklyMeetingRepository extends JpaRepository<WeeklyMeeting, UUID> {
     boolean existsByCreatedAtGreaterThanEqual(Instant startOfWeek);
+
     boolean existsByCreatedAtBetween(Instant start, Instant end);
 }

@@ -7,8 +7,7 @@ public record UserDTO(UUID id, String firstName, String lastName, String role, S
                       LocalDateTime createdAt, String avatarUrl) {
 
     public static UserDTO fromModel(final UserModel userModel) {
-        final String vcsKey =
-            (userModel.getVcsKey() == null || userModel.getVcsKey().isEmpty()) ? null : "<REDACTED>";
+        final String vcsKey = (userModel.getVcsKey() == null || userModel.getVcsKey().isEmpty()) ? null : "<REDACTED>";
         final String redmineKey =
             (userModel.getRedmineKey() == null || userModel.getRedmineKey().isEmpty()) ? null : "<REDACTED>";
         return new UserDTO(userModel.getId(), userModel.getFirstName(), userModel.getLastName(), userModel.getRole(),

@@ -21,11 +21,11 @@ public class PdfService {
 
     private final TemplateEngine templateEngine;
 
-    public Resource generatePdfResource(final String templateName, final Map<String, Object> variables, final boolean isDraft) {
+    public Resource generatePdfResource(final String templateName, final Map<String, Object> variables,
+        final boolean isDraft) {
         final byte[] pdfBytes = generatePdf(templateName, variables, isDraft);
-        final String cleanFilename = templateName.contains("/")
-            ? templateName.substring(templateName.lastIndexOf("/") + 1)
-            : templateName;
+        final String cleanFilename =
+            templateName.contains("/") ? templateName.substring(templateName.lastIndexOf("/") + 1) : templateName;
 
         return new ByteArrayResource(pdfBytes) {
             @Override

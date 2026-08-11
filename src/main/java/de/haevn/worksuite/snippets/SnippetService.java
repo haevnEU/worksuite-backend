@@ -24,8 +24,9 @@ public class SnippetService {
     @Transactional
     public SnippetShareDTO shareSnippet(final SnippetShareDTO snippetShareDTO) {
         final SnippetModel snippetModel = snippetShareRepository.save(snippetShareDTO.toModel());
-        websocketPushService.dispatch(new WsEvent(this.getClass(), Priority.INFO, "Snippet shared: " + snippetModel.getId()));
-    return SnippetShareDTO.fromModel(snippetModel);
+        websocketPushService.dispatch(
+            new WsEvent(this.getClass(), Priority.INFO, "Snippet shared: " + snippetModel.getId()));
+        return SnippetShareDTO.fromModel(snippetModel);
     }
 
     @Transactional

@@ -17,14 +17,13 @@ import org.springframework.web.multipart.MultipartFile;
  * <p>This service provides a capsulated view on the file system, allowing for storing and retrieving files in a structured manner.</p>
  * <p>Files are stored in a directory structure based on the module name and file ID. The root directory for storage is "/data".</p>
  * <p>Example usage:</p>
- * {@snippet
- *      FileStorageService fileStorageService = new FileStorageService("myModule");
- *      UUID fileId = UUID.randomUUID();
- *      MultipartFile file = ...; // Obtain a MultipartFile from a request
- *      fileStorageService.storeFile(fileId, file);
- *      Resource resource = fileStorageService.loadFile(fileId.toString());
- *      fileStorageService.deleteFile(fileId);
- * }
+ * {@snippet *FileStorageService fileStorageService = new FileStorageService("myModule");
+     *UUID fileId = UUID.randomUUID();
+     *MultipartFile file =...;//Obtain a MultipartFile from a request
+ *fileStorageService.storeFile(fileId,file);
+     *Resource resource = fileStorageService.loadFile(fileId.toString());
+     *fileStorageService.deleteFile(fileId);
+ *}
  */
 public class FileStorageService {
     private final Path rootPath = Path.of("/data");

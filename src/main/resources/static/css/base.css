@@ -33,6 +33,7 @@ body {
 .page-break-avoid {
     page-break-inside: avoid;
 }
+
 .watermark {
     position: fixed;
     top: 30%;

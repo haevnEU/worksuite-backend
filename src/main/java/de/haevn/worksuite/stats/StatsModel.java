@@ -8,8 +8,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Data;
 
@@ -31,7 +29,7 @@ public class StatsModel {
     @Column(name = "return_from_qa")
     private int returnFromQa;
 
-    @Column(name  = "return_from_review")
+    @Column(name = "return_from_review")
     private int returnFromReview;
 
     @Column(name = "hours_spent")

@@ -24,8 +24,13 @@ public class WeeklyMeetingController {
 
     private final WeeklyMeetingService weeklyMeetingService;
 
-    public record AddTaskRequest(String task) {}
-    public record UpdateSummaryRequest(String summary) {}
+
+    public record AddTaskRequest(String task) {
+    }
+
+
+    public record UpdateSummaryRequest(String summary) {
+    }
 
     @GetMapping
     public ResponseEntity<List<WeeklyMeetingDTO>> getAll() {
@@ -44,8 +49,7 @@ public class WeeklyMeetingController {
     }
 
     @PostMapping("/{id}/tasks")
-    public ResponseEntity<Void> addTaskToDay(
-        @PathVariable("id") UUID meetingId,
+    public ResponseEntity<Void> addTaskToDay(@PathVariable("id") UUID meetingId,
         @RequestParam("day") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day,
         @RequestBody AddTaskRequest request) {
         weeklyMeetingService.addToMeeting(day, meetingId, request.task());
@@ -53,8 +57,7 @@ public class WeeklyMeetingController {
     }
 
     @PutMapping("/{id}/day-summary")
-    public ResponseEntity<Void> updateDaySummary(
-        @PathVariable("id") UUID meetingId,
+    public ResponseEntity<Void> updateDaySummary(@PathVariable("id") UUID meetingId,
         @RequestParam("day") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day,
         @RequestBody UpdateSummaryRequest request) {
         weeklyMeetingService.addDaySummary(day, meetingId, request.summary());
@@ -62,15 +65,15 @@ public class WeeklyMeetingController {
     }
 
     @PutMapping("/{id}/summary")
-    public ResponseEntity<Void> updateWeeklySummary(
-        @PathVariable("id") UUID meetingId,
+    public ResponseEntity<Void> updateWeeklySummary(@PathVariable("id") UUID meetingId,
         @RequestBody UpdateSummaryRequest request) {
         weeklyMeetingService.addSummary(meetingId, request.summary());
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/export")
-    public ResponseEntity<Resource> exportPdf(@PathVariable("id") UUID meetingId, @RequestHeader(value = "isDraft", defaultValue = "false" ) final boolean isDraft) {
+    public ResponseEntity<Resource> exportPdf(@PathVariable("id") UUID meetingId,
+        @RequestHeader(value = "isDraft", defaultValue = "false") final boolean isDraft) {
         return weeklyMeetingService.exportPdf(meetingId, isDraft);
     }
 }

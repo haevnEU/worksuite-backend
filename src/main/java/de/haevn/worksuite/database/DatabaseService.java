@@ -55,9 +55,11 @@ public class DatabaseService {
         return filter(record -> record.key().equals(id));
     }
 
-    public List<DatabaseRecord> getDatabaseRecords(final String table, final Optional<String> searchParam, final Optional<String> value) {
-        final List<DatabaseRecord> targetTable = databaseRecordRepository.getDatabaseRecords().getOrDefault(table, List.of());
-        if(searchParam.isPresent() && value.isPresent()) {
+    public List<DatabaseRecord> getDatabaseRecords(final String table, final Optional<String> searchParam,
+        final Optional<String> value) {
+        final List<DatabaseRecord> targetTable =
+            databaseRecordRepository.getDatabaseRecords().getOrDefault(table, List.of());
+        if (searchParam.isPresent() && value.isPresent()) {
             final String param = searchParam.get();
             final String val = value.get();
             switch (param) {

@@ -1,4 +1,5 @@
 package de.haevn.worksuite.notes;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertCallback;
@@ -13,7 +14,7 @@ public class NoteBeforeConvertCallback implements BeforeConvertCallback<NoteMode
             entity.setId(UUID.randomUUID());
         }
 
-        if(entity.getCreatedAt() == null) {
+        if (entity.getCreatedAt() == null) {
             entity.setCreatedAt(LocalDateTime.now());
         }
 

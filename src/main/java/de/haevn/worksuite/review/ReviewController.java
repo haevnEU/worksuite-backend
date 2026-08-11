@@ -28,7 +28,8 @@ public class ReviewController {
     public List<ReviewResponseDto> getReviews(@RequestParam(defaultValue = "false") final boolean archived) {
         return reviewService.getReviews(archived);
     }
-// TODO Migrate all to this
+
+    // TODO Migrate all to this
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void createReview(@Valid @RequestBody final CreateReviewRequestDto request) {

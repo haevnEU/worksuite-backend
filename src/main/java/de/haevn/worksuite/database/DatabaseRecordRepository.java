@@ -7,7 +7,6 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Component;
 import tools.jackson.core.type.TypeReference;
@@ -25,7 +24,8 @@ public class DatabaseRecordRepository {
         try {
             final FileSystemResource resource = new FileSystemResource("/shared/records.json");
             try (InputStream inputStream = resource.getInputStream()) {
-                return objectMapper.readValue(inputStream, new TypeReference<Map<String, List<DatabaseRecord>>>() {});
+                return objectMapper.readValue(inputStream, new TypeReference<Map<String, List<DatabaseRecord>>>() {
+                });
             }
         } catch (Exception e) {
             log.error("Failed to load database records", e);

@@ -12,9 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,12 +34,6 @@ public class UserController {
     public UserDTO getUser(@PathVariable final UUID id) {
         log.info("Getting user with id: {}", id);
         return userService.getUser(id);
-    }
-
-    @PostMapping
-    public UUID createUser(@RequestBody final UserDTO userDTO) {
-        log.info("Creating user");
-        return userService.createUser(userDTO);
     }
 
     @PutMapping("/{id}/redmine-key")

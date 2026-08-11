@@ -207,7 +207,7 @@ public class RedmineService {
         timeService.book(id, request);
     }
 
-    public List<RedmineInfoResponses.InfoResponse> getInfo(final InfoType infoType) throws RedmineException{
+    public List<RedmineInfoResponses.InfoResponse> getInfo(final InfoType infoType) throws RedmineException {
         return redmineClient.getInfo(infoType);
     }
 

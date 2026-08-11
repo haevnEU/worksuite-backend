@@ -31,8 +31,7 @@ public class DatabaseController {
     }
 
     @GetMapping("/tables/{table}")
-    public List<DatabaseRecord> getDatabaseRecords(
-        @PathVariable String table,
+    public List<DatabaseRecord> getDatabaseRecords(@PathVariable String table,
         @RequestParam(required = false) Optional<String> searchParam,
         @RequestParam(required = false) Optional<String> value) {
         log.info("Fetching database records for table {}", table);

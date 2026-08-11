@@ -139,13 +139,13 @@ public class WeeklyMeetingService {
     @Transactional(readOnly = true)
     public ResponseEntity<Resource> exportPdf(final UUID meetingId, final boolean isDraft) {
         final WeeklyMeeting meeting = findMeetingEntity(meetingId);
-        final List<DaySummary> filteredSummaries = meeting.getDaySummaries().stream()
-            .filter(day -> {
-                if (day.getDate() == null) return true;
-                final DayOfWeek dow = day.getDate().atZone(ZoneId.of("Europe/Berlin")).getDayOfWeek();
-                return dow != DayOfWeek.SATURDAY && dow != DayOfWeek.SUNDAY;
-            })
-            .toList();
+        final List<DaySummary> filteredSummaries = meeting.getDaySummaries().stream().filter(day -> {
+            if (day.getDate() == null) {
+                return true;
+            }
+            final DayOfWeek dow = day.getDate().atZone(ZoneId.of("Europe/Berlin")).getDayOfWeek();
+            return dow != DayOfWeek.SATURDAY && dow != DayOfWeek.SUNDAY;
+        }).toList();
         meeting.setDaySummaries(filteredSummaries);
 
         final Map<String, Object> variables = Map.of("meeting", meeting);

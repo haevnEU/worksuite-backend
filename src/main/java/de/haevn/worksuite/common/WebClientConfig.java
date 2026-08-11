@@ -10,10 +10,8 @@ public class WebClientConfig {
 
     @Bean
     public WebClient unlimitedWebClient() {
-        return WebClient.builder()
-            .exchangeStrategies(ExchangeStrategies.builder()
-                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(-1))
-                .build())
+        return WebClient.builder().exchangeStrategies(
+                ExchangeStrategies.builder().codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(-1)).build())
             .build();
     }
 }

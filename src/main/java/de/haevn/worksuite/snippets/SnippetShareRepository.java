@@ -6,5 +6,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface SnippetShareRepository extends MongoRepository<SnippetModel, UUID> {
     List<SnippetModel> findByTagsContaining(String tag);
+
     List<SnippetModel> findByTitleContainingIgnoreCase(String title);
 }

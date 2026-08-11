@@ -41,7 +41,8 @@ public class FileService {
         final String storagePath = fileStorageService.storeFile(id, file);
         savedModel.setStoragePath(storagePath);
 
-        websocketPushService.dispatch(new WsEvent(this.getClass(), Priority.INFO, "New File shared: " + savedModel.getOriginalFilename()));
+        websocketPushService.dispatch(
+            new WsEvent(this.getClass(), Priority.INFO, "New File shared: " + savedModel.getOriginalFilename()));
         return id;
     }
 

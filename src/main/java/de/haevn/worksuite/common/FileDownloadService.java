@@ -1,18 +1,16 @@
 package de.haevn.worksuite.common;
 
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.UnknownHostException;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
-
-import java.net.InetAddress;
-import java.net.URI;
-import java.net.UnknownHostException;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -33,16 +31,11 @@ public class FileDownloadService {
 
         validateUri(uri);
 
-        return unlimitedWebClient.get()
-            .uri(uri)
-            .headers(headers -> {
-                if (StringUtils.hasText(securityHeaderValue) && StringUtils.hasText(securityHeaderName)) {
-                    headers.set(securityHeaderName, securityHeaderValue);
-                }
-            })
-            .retrieve()
-            .bodyToFlux(DataBuffer.class)
-            .doOnNext(this::inspectContent);
+        return unlimitedWebClient.get().uri(uri).headers(headers -> {
+            if (StringUtils.hasText(securityHeaderValue) && StringUtils.hasText(securityHeaderName)) {
+                headers.set(securityHeaderName, securityHeaderValue);
+            }
+        }).retrieve().bodyToFlux(DataBuffer.class).doOnNext(this::inspectContent);
     }
 
     private void validateUri(final URI uri) {

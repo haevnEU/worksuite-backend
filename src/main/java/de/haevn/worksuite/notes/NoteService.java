@@ -24,14 +24,15 @@ import org.springframework.stereotype.Service;
 @Log4j2
 public class NoteService {
 
-    private final WebsocketPushService  websocketPushService;
+    private final WebsocketPushService websocketPushService;
     private final NoteRepository noteRepository;
     private final PdfService pdfService;
 
     @Transactional
     public NoteDTO create(final NoteDTO noteDTO) {
         final NoteModel noteModel = noteRepository.save(noteDTO.toModel());
-        websocketPushService.dispatch(new WsEvent(this.getClass(), Priority.INFO, "Note created: " + noteModel.getTitle()));
+        websocketPushService.dispatch(
+            new WsEvent(this.getClass(), Priority.INFO, "Note created: " + noteModel.getTitle()));
         return NoteDTO.fromModel(noteModel);
     }
 

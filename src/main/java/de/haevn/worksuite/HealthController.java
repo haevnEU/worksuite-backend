@@ -1,6 +1,5 @@
 package de.haevn.worksuite;
 
-import de.haevn.worksuite.push.WebsocketPushService;
 import java.util.Map;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.GetMapping;

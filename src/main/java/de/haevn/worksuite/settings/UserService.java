@@ -25,14 +25,6 @@ public class UserService {
     private final FileStorageService fileStorageService;
 
     @Transactional
-    public UUID createUser(final UserDTO userDTO) {
-        final UserModel userModel = userRepository.save(userDTO.toModel());
-        websocketPushService.dispatch(
-            new WsEvent(this.getClass(), Priority.INFO, "User created: " + userModel.getId()));
-        return userModel.getId();
-    }
-
-    @Transactional
     public List<UserDTO> getAllUsers() {
         final List<UserModel> userModels = userRepository.findAll();
         return userModels.stream().map(UserDTO::fromModel).toList();
@@ -56,8 +48,7 @@ public class UserService {
     public void setVcsKey(final UUID id, final String vcsKey) {
         final UserModel model = userRepository.findById(id).orElseThrow(NotFoundException::new);
         model.setVcsKey(vcsKey);
-        websocketPushService.dispatch(
-            new WsEvent(this.getClass(), Priority.INFO, "VCS API-Key added for user: " + id));
+        websocketPushService.dispatch(new WsEvent(this.getClass(), Priority.INFO, "VCS API-Key added for user: " + id));
     }
 
     @Transactional
