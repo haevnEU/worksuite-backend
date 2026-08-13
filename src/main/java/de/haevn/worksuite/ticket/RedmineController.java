@@ -49,7 +49,7 @@ public class RedmineController {
     @PostMapping("/{id}/merge-request")
     public void createMergeRequest(@PathVariable final long id, @RequestBody final MrProtocolRequest protocol)
         throws RedmineException {
-        final String mrLink = vcsService.createMergeRequest("[#" + id + "]", protocol);
+        final String mrLink = vcsService.createMergeRequest(id, protocol);
         redmineService.addMergeRequestLink(id, mrLink);
     }
 

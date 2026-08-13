@@ -29,4 +29,10 @@ public class VcsController {
         List<ProtectedBranchPipelineDto> pipelines = vcsService.getProtectedBranchPipelines();
         return ResponseEntity.ok(pipelines);
     }
+
+    @GetMapping("/repositories")
+    public ResponseEntity<List<GitLabRepository>> getRepositories() {
+        List<GitLabRepository> repositories = vcsService.getRepositories();
+        return ResponseEntity.ok(repositories);
+    }
 }
