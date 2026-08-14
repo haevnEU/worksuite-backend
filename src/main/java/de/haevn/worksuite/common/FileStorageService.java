@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.UUID;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;
@@ -138,5 +139,24 @@ public class FileStorageService {
         }
 
         return targetPath;
+    }
+
+    public String calculateChecksum(final UUID id) {
+        try {
+            final Path filePath = resolvePath(moduleName, id.toString());
+            final byte[] fileBytes = Files.readAllBytes(filePath);
+            return java.util.Base64.getEncoder()
+                .encodeToString(java.security.MessageDigest.getInstance("SHA-256").digest(fileBytes));
+        } catch (Exception e) {
+            throw new RuntimeException("Could not calculate checksum for file: " + id, e);
+        }
+    }
+
+    public String calculateChecksum(final MultipartFile file) {
+        try (final InputStream inputStream = file.getInputStream()) {
+            return DigestUtils.sha256Hex(inputStream);
+        } catch (Exception e) {
+            throw new IllegalStateException("Fehler beim Berechnen der Prüfsumme", e);
+        }
     }
 }

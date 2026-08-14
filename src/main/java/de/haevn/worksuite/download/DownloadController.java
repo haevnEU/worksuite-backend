@@ -2,6 +2,7 @@ package de.haevn.worksuite.download;
 
 
 import de.haevn.worksuite.common.RestApiController;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.io.Resource;
@@ -19,7 +20,7 @@ public class DownloadController {
 
     @PostMapping("/{type}")
     public ResponseEntity<Resource> downloadSynchronous(@PathVariable final DownloadModule type,
-        @RequestBody final RequestDTO dto) {
+        @RequestBody final RequestDTO dto) throws IOException {
         log.info("Downloading " + type.name());
         return downloadService.downloadSynchronous(type, dto);
     }

@@ -1,4 +1,10 @@
 spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: ${MULTIPART_MAX_FILE_SIZE:100MB}
+      max-request-size: ${MULTIPART_MAX_REQUEST_SIZE:100MB}
+
   datasource:
     driver-class-name: org.postgresql.Driver
 

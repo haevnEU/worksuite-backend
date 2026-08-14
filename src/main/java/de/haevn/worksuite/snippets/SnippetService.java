@@ -4,7 +4,6 @@ import de.haevn.worksuite.common.exceptions.NotFoundException;
 import de.haevn.worksuite.push.WebsocketPushService;
 import de.haevn.worksuite.push.events.Priority;
 import de.haevn.worksuite.push.events.WsEvent;
-import de.haevn.worksuite.share.PasswordValidation;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +18,6 @@ public class SnippetService {
 
     private final WebsocketPushService websocketPushService;
     private final SnippetShareRepository snippetShareRepository;
-    private final PasswordValidation passwordValidation;
 
     @Transactional
     public SnippetShareDTO shareSnippet(final SnippetShareDTO snippetShareDTO) {

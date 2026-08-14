@@ -7,9 +7,11 @@ import de.haevn.worksuite.notes.NoteModel;
 import de.haevn.worksuite.notes.NoteRepository;
 import de.haevn.worksuite.retro.RetroModel;
 import de.haevn.worksuite.retro.RetroRepository;
+import de.haevn.worksuite.share.ShareService;
 import de.haevn.worksuite.weekly.DaySummary;
 import de.haevn.worksuite.weekly.WeeklyMeeting;
 import de.haevn.worksuite.weekly.WeeklyMeetingService;
+import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.DayOfWeek;
@@ -37,14 +39,24 @@ public class DownloadService {
     private final PdfService pdfService;
     private final NoteRepository noteRepository;
     private final RetroRepository retroRepository;
+    private final ShareService shareService;
 
-    public ResponseEntity<Resource> downloadSynchronous(final DownloadModule type, final RequestDTO dto) {
+    public ResponseEntity<Resource> downloadSynchronous(final DownloadModule type, final RequestDTO dto) throws IOException {
         return switch (type) {
             case WEEKLY_MEETING_PROTOCOL -> downloadWeeklyMeetingProtocol(dto);
             case NOTEBOOK_EXPORT -> downloadNotebookExport(dto);
             case RETROSPECTIVE_PROTOCOL -> downloadRetrospectiveProtocol(dto);
             case TICKET_ATTACHMENT -> downloadTicketAttachment(dto);
+            case FILE_SHARE -> downloadSharedFile(dto);
         };
+    }
+
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<Resource> downloadSharedFile(final RequestDTO dto) throws IOException {
+        log.info("Downloading shared file with id: " + dto.id());
+        final UUID fileId = UUID.fromString(dto.id());
+        return shareService.downloadFile(fileId);
     }
 
     @Transactional(readOnly = true)
