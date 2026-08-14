@@ -13,7 +13,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -34,10 +33,11 @@ public class ShareService {
     }
 
     public ResponseEntity<Resource> downloadFile(final UUID id) throws IOException {
+        final FileMeta meta = shareRepository.findById(id).orElseThrow(NotFoundException::new);
+
         final Resource resource = fileStorageService.loadFile(id.toString());
-        return ResponseEntity.ok()
-                .header("Content-Disposition", "attachment; filename=\"" + resource.getFilename() + "\"")
-                .body(resource);
+        return ResponseEntity.ok().header("Content-Disposition", "attachment; filename=\"" + meta.getFilename() + "\"")
+            .header("Content-Type", meta.getFileType()).body(resource);
     }
 
     @Transactional
