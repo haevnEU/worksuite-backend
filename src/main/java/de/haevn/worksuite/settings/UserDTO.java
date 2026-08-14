@@ -1,10 +1,11 @@
 package de.haevn.worksuite.settings;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record UserDTO(UUID id, String firstName, String lastName, String role, String redmineKey, String vcsKey,
-                      LocalDateTime createdAt, String avatarUrl) {
+                      Instant createdAt, String avatarUrl) {
 
     public static UserDTO fromModel(final UserModel userModel) {
         final String vcsKey = (userModel.getVcsKey() == null || userModel.getVcsKey().isEmpty()) ? null : "<REDACTED>";

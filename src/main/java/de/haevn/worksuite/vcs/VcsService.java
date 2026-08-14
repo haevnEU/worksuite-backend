@@ -138,7 +138,7 @@ public class VcsService {
             final MergeRequestFilter filter =
                 new MergeRequestFilter().withState(MergeRequestState.OPENED).withScope(MergeRequestScope.CREATED_BY_ME);
 
-            final List<MergeRequest> mrs = getGitLabApi().getMergeRequestApi().getMergeRequests(filter);
+y            final List<MergeRequest> mrs = getGitLabApi().getMergeRequestApi().getMergeRequests(filter);
             return mrs.stream().map(this::mapToMergeRequestDto).toList();
         } catch (final GitLabApiException e) {
             log.error("Failed to fetch my merge requests from GitLab", e);

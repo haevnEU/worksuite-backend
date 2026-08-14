@@ -7,7 +7,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 import lombok.Data;
 
@@ -38,10 +40,14 @@ public class UserModel {
     private String vcsKey;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
+
+    @Column(name = "license_expiration")
+    private Instant licenseExpiration;
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = Instant.now();
+        this.licenseExpiration = Instant.now().plus(30, ChronoUnit.DAYS);
     }
 }

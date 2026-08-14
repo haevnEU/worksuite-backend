@@ -83,4 +83,9 @@ public class UserService {
         userRepository.findById(id).orElseThrow(NotFoundException::new);
         return fileStorageService.loadFile(id.toString());
     }
+
+    public boolean licenseExpired(final UUID id) {
+        final UserModel model = userRepository.findById(id).orElseThrow(NotFoundException::new);
+        return model.getLicenseExpiration().isBefore(java.time.Instant.now());
+    }
 }
