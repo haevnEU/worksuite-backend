@@ -62,9 +62,4 @@ public class RedmineController {
     public void createComment(@PathVariable long id, @RequestBody String comment) throws RedmineException {
         redmineService.addComment(id, comment);
     }
-
-    @PostMapping("/download/attachments")
-    public Flux<DataBuffer> downloadAttachment(@RequestBody String url) throws RedmineException {
-        return redmineService.downloadAttachment(url);
-    }
 }

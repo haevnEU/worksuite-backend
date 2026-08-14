@@ -6,17 +6,10 @@ import de.haevn.worksuite.push.WebsocketPushService;
 import de.haevn.worksuite.push.events.Priority;
 import de.haevn.worksuite.push.events.WsEvent;
 import jakarta.transaction.Transactional;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 
@@ -104,19 +97,5 @@ public class RetroService {
     public void deleteRetro(final UUID retroId) {
         retroRepository.deleteById(retroId);
         websocketPushService.dispatch(new WsEvent(this.getClass(), Priority.INFO, "Retro deleted."));
-    }
-
-    public ResponseEntity<Resource> exportPdf(final UUID id, final boolean isDraft) {
-        final RetroModel model = retroRepository.findById(id).orElseThrow(NotFoundException::new);
-
-        final Map<String, Object> variables = Map.of("retro", model);
-        final Resource pdfResource = pdfService.generatePdfResource("pdf/retro", variables, isDraft);
-
-        final String filename = "retro-" + model.getSprintName().toLowerCase().replaceAll("\\s+", "-") + ".pdf";
-        final ContentDisposition contentDisposition =
-            ContentDisposition.attachment().filename(filename, StandardCharsets.UTF_8).build();
-
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_PDF)
-            .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString()).body(pdfResource);
     }
 }

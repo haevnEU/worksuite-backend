@@ -1,11 +1,9 @@
 package de.haevn.worksuite.weekly;
 
-import de.haevn.worksuite.common.PdfService;
 import de.haevn.worksuite.common.exceptions.BadRequestException;
 import de.haevn.worksuite.push.WebsocketPushService;
 import de.haevn.worksuite.push.events.Priority;
 import de.haevn.worksuite.push.events.WsEvent;
-import java.nio.charset.StandardCharsets;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -15,16 +13,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +28,6 @@ public class WeeklyMeetingService {
 
     private final WebsocketPushService websocketPushService;
     private final WeeklyMeetingRepository weeklyMeetingRepository;
-    private final PdfService pdfService;
 
     @Scheduled(cron = "0 0 12 * * TUE", zone = "UTC")
     @Transactional
@@ -136,33 +127,9 @@ public class WeeklyMeetingService {
             String.format("Updated overall weekly summary for meeting '%s'.", meeting.getTitle())));
     }
 
-    @Transactional(readOnly = true)
-    public ResponseEntity<Resource> exportPdf(final UUID meetingId, final boolean isDraft) {
-        final WeeklyMeeting meeting = findMeetingEntity(meetingId);
-        final List<DaySummary> filteredSummaries = meeting.getDaySummaries().stream().filter(day -> {
-            if (day.getDate() == null) {
-                return true;
-            }
-            final DayOfWeek dow = day.getDate().atZone(ZoneId.of("Europe/Berlin")).getDayOfWeek();
-            return dow != DayOfWeek.SATURDAY && dow != DayOfWeek.SUNDAY;
-        }).toList();
-        meeting.setDaySummaries(filteredSummaries);
-
-        final Map<String, Object> variables = Map.of("meeting", meeting);
-        final Resource pdfResource = pdfService.generatePdfResource("pdf/weekly-meeting", variables, isDraft);
-
-        final String filename = "weekly-meeting-" + meetingId + ".pdf";
-        final ContentDisposition contentDisposition =
-            ContentDisposition.attachment().filename(filename, StandardCharsets.UTF_8).build();
-
-
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_PDF)
-            .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString()).body(pdfResource);
-    }
-
     // --- Helper Methods ---
 
-    private WeeklyMeeting findMeetingEntity(UUID meetingId) {
+    public WeeklyMeeting findMeetingEntity(UUID meetingId) {
         return weeklyMeetingRepository.findById(meetingId)
             .orElseThrow(() -> new NoSuchElementException("Meeting nicht gefunden: " + meetingId));
     }

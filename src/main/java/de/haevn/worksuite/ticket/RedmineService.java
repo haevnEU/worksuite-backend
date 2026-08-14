@@ -91,11 +91,6 @@ public class RedmineService {
         redmineClient.tickCheckbox(ticketId, checkboxIndex, state);
     }
 
-    public Flux<DataBuffer> downloadAttachment(final String url) {
-        URI downloadUri = URI.create(url);
-        return fileDownloadService.download(downloadUri, "X-Redmine-API-Key", apiKey);
-    }
-
     public void moveToQs(final long id, final @Valid QaProtocolRequest data) throws RedmineException {
         log.info("Moving to Qs for {}", id);
         log.info("Got data {}", data.toString());

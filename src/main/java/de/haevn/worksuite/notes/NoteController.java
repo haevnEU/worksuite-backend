@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -51,12 +49,5 @@ public class NoteController {
         log.info("Deleting text with id: {}", id);
         noteService.delete(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/{id}/export")
-    public ResponseEntity<Resource> download(@PathVariable final UUID id,
-        @RequestHeader(value = "isDraft", defaultValue = "false") final boolean isDraft) {
-        log.info("Downloading text with id: {}", id);
-        return noteService.exportPdf(id, isDraft);
     }
 }
