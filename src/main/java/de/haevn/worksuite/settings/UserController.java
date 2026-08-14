@@ -33,7 +33,7 @@ public class UserController {
     @GetMapping("/{id}")
     public UserDTO getUser(@PathVariable final UUID id) {
         log.info("Getting user with id: {}", id);
-        return userService.getUser(id);
+        return userService.getUserDTO(id);
     }
 
     @PutMapping("/{id}/redmine-key")

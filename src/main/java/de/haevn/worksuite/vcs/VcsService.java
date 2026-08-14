@@ -1,14 +1,13 @@
 package de.haevn.worksuite.vcs;
 
+import de.haevn.worksuite.common.UserContextHolder;
+import de.haevn.worksuite.common.UserIntegrationContext;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.gitlab4j.api.models.MergeRequestParams;
-import org.gitlab4j.models.Constants.MergeRequestScope;
-import org.gitlab4j.models.Constants.MergeRequestState;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.models.MergeRequest;
@@ -17,6 +16,8 @@ import org.gitlab4j.api.models.Pipeline;
 import org.gitlab4j.api.models.PipelineFilter;
 import org.gitlab4j.api.models.Project;
 import org.gitlab4j.api.models.ProtectedBranch;
+import org.gitlab4j.models.Constants.MergeRequestScope;
+import org.gitlab4j.models.Constants.MergeRequestState;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -27,22 +28,19 @@ public class VcsService {
     @Value("${app.vcs.url}")
     private String vcsUrl;
 
-    @Value("${app.vcs.api-key:}")
-    private String vcsToken;
-
     @Value("${app.redmine.url:http://localhost/redmine}")
     private String redmineBaseUrl;
 
-    private GitLabApi gitLabApi;
+    private GitLabApi getGitLabApi() {
+        UserIntegrationContext ctx = UserContextHolder.getContext();
+        String activeToken = (ctx != null && isNotBlank(ctx.vcsToken()))
+            ? ctx.vcsToken() : "";
 
-    private synchronized GitLabApi getGitLabApi() {
-        if (gitLabApi == null) {
-            if (!isNotBlank(vcsToken)) {
-                log.warn("GitLab Personal Access Token (app.vcs.api-key) is missing.");
-            }
-            this.gitLabApi = new GitLabApi(vcsUrl, vcsToken);
+        if (!isNotBlank(activeToken)) {
+            throw new IllegalStateException("GitLab token is not configured for user.");
         }
-        return gitLabApi;
+
+        return new GitLabApi(vcsUrl, activeToken);
     }
 
     private String buildMrDescription(final MrProtocolRequest data) {
@@ -136,17 +134,12 @@ public class VcsService {
     }
 
     public List<MergeRequestDto> getMyMergeRequests() {
-        if (!isNotBlank(vcsToken)) return Collections.emptyList();
-
         try {
-            final MergeRequestFilter filter = new MergeRequestFilter()
-                .withState(MergeRequestState.OPENED)
-                .withScope(MergeRequestScope.CREATED_BY_ME);
+            final MergeRequestFilter filter =
+                new MergeRequestFilter().withState(MergeRequestState.OPENED).withScope(MergeRequestScope.CREATED_BY_ME);
 
             final List<MergeRequest> mrs = getGitLabApi().getMergeRequestApi().getMergeRequests(filter);
-            return mrs.stream()
-                .map(this::mapToMergeRequestDto)
-                .toList();
+            return mrs.stream().map(this::mapToMergeRequestDto).toList();
         } catch (final GitLabApiException e) {
             log.error("Failed to fetch my merge requests from GitLab", e);
             return Collections.emptyList();
@@ -154,17 +147,12 @@ public class VcsService {
     }
 
     public List<MergeRequestDto> getPendingReviews() {
-        if (!isNotBlank(vcsToken)) return Collections.emptyList();
-
         try {
-            final MergeRequestFilter filter = new MergeRequestFilter()
-                .withState(MergeRequestState.OPENED)
+            final MergeRequestFilter filter = new MergeRequestFilter().withState(MergeRequestState.OPENED)
                 .withScope(MergeRequestScope.ASSIGNED_TO_ME);
 
             final List<MergeRequest> mrs = getGitLabApi().getMergeRequestApi().getMergeRequests(filter);
-            return mrs.stream()
-                .map(this::mapToMergeRequestDto)
-                .toList();
+            return mrs.stream().map(this::mapToMergeRequestDto).toList();
         } catch (final GitLabApiException e) {
             log.error("Failed to fetch pending reviews from GitLab", e);
             return Collections.emptyList();
@@ -172,44 +160,41 @@ public class VcsService {
     }
 
     public List<ProtectedBranchPipelineDto> getProtectedBranchPipelines() {
-        if (!isNotBlank(vcsToken)) return Collections.emptyList();
-
         final List<ProtectedBranchPipelineDto> result = new ArrayList<>();
         try {
             final List<Project> projects = getGitLabApi().getProjectApi().getMemberProjects();
 
             for (final Project project : projects) {
-                final List<ProtectedBranch> protectedBranches = getGitLabApi().getProtectedBranchesApi().getProtectedBranches(project.getId());
+                final List<ProtectedBranch> protectedBranches =
+                    getGitLabApi().getProtectedBranchesApi().getProtectedBranches(project.getId());
 
                 for (final ProtectedBranch branch : protectedBranches) {
                     final PipelineFilter pipelineFilter = new PipelineFilter().withRef(branch.getName());
-                    final List<Pipeline> pipelines = getGitLabApi().getPipelineApi().getPipelines(project.getId(), pipelineFilter);
+                    final List<Pipeline> pipelines =
+                        getGitLabApi().getPipelineApi().getPipelines(project.getId(), pipelineFilter);
 
                     if (!pipelines.isEmpty()) {
                         final Pipeline latest = pipelines.get(0);
-                        final Pipeline fullPipeline = getGitLabApi().getPipelineApi().getPipeline(project.getId(), latest.getId());
+                        final Pipeline fullPipeline =
+                            getGitLabApi().getPipelineApi().getPipeline(project.getId(), latest.getId());
 
                         String commitTitle = "-";
                         if (fullPipeline.getSha() != null) {
                             try {
-                                var commit = getGitLabApi().getCommitsApi().getCommit(project.getId(), fullPipeline.getSha());
+                                var commit =
+                                    getGitLabApi().getCommitsApi().getCommit(project.getId(), fullPipeline.getSha());
                                 commitTitle = commit.getTitle();
                             } catch (GitLabApiException ignored) {
-                                // Fallback option falls Commit API nicht antwortet
                             }
                         }
 
-                        result.add(new ProtectedBranchPipelineDto(
-                            String.valueOf(fullPipeline.getId()),
-                            project.getName(),
-                            branch.getName(),
-                            mapPipelineStatus(fullPipeline.getStatus()),
-                            commitTitle,
-                            fullPipeline.getWebUrl(),
-                            fullPipeline.getUpdatedAt() != null
-                                ? fullPipeline.getUpdatedAt().toInstant().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT)
-                                : ""
-                        ));
+                        result.add(
+                            new ProtectedBranchPipelineDto(String.valueOf(fullPipeline.getId()), project.getName(),
+                                branch.getName(), mapPipelineStatus(fullPipeline.getStatus()), commitTitle,
+                                fullPipeline.getWebUrl(), fullPipeline.getUpdatedAt() != null ?
+                                fullPipeline.getUpdatedAt().toInstant().atOffset(ZoneOffset.UTC)
+                                    .format(DateTimeFormatter.ISO_INSTANT) :
+                                ""));
                     }
                 }
             }
@@ -220,40 +205,31 @@ public class VcsService {
         return result;
     }
 
-    // --- Helper Mappings ---
-
     private MergeRequestDto mapToMergeRequestDto(final MergeRequest mr) {
-        final String projectName = (mr.getReferences() != null && mr.getReferences().getShort() != null)
-            ? mr.getReferences().getShort()
-            : "unknown";
+        final String projectName = (mr.getReferences() != null && mr.getReferences().getShort() != null) ?
+            mr.getReferences().getShort() :
+            "unknown";
 
-        final MergeRequestDto.AuthorDto authorDto = new MergeRequestDto.AuthorDto(
-            mr.getAuthor() != null ? mr.getAuthor().getName() : "Unknown",
-            mr.getAuthor() != null ? mr.getAuthor().getAvatarUrl() : null
-        );
+        final MergeRequestDto.AuthorDto authorDto =
+            new MergeRequestDto.AuthorDto(mr.getAuthor() != null ? mr.getAuthor().getName() : "Unknown",
+                mr.getAuthor() != null ? mr.getAuthor().getAvatarUrl() : null);
 
         final boolean isApproved = mr.getApprovedBy() != null && !mr.getApprovedBy().isEmpty();
 
-        return new MergeRequestDto(
-            String.valueOf(mr.getId()),
-            mr.getIid(),
-            mr.getTitle(),
-            authorDto,
-            mr.getSourceBranch(),
-            mr.getTargetBranch(),
-            mr.getWebUrl(),
+        return new MergeRequestDto(String.valueOf(mr.getId()), mr.getIid(), mr.getTitle(), authorDto,
+            mr.getSourceBranch(), mr.getTargetBranch(), mr.getWebUrl(),
             mr.getHeadPipeline() != null ? mapPipelineStatus(mr.getHeadPipeline().getStatus()) : PipelineStatus.SKIPPED,
-            mr.getUserNotesCount() != null ? mr.getUserNotesCount() : 0,
-            Boolean.TRUE.equals(mr.getHasConflicts()),
-            Boolean.TRUE.equals(mr.getWorkInProgress()) || (mr.getTitle() != null && mr.getTitle().startsWith("Draft:")),
-            isApproved,
-            mr.getUpdatedAt() != null ? mr.getUpdatedAt().toInstant().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT) : "",
-            projectName
-        );
+            mr.getUserNotesCount() != null ? mr.getUserNotesCount() : 0, Boolean.TRUE.equals(mr.getHasConflicts()),
+            Boolean.TRUE.equals(mr.getWorkInProgress()) || (mr.getTitle() != null && mr.getTitle()
+                .startsWith("Draft:")), isApproved, mr.getUpdatedAt() != null ?
+            mr.getUpdatedAt().toInstant().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT) :
+            "", projectName);
     }
 
     private PipelineStatus mapPipelineStatus(final org.gitlab4j.api.models.PipelineStatus status) {
-        if (status == null) return PipelineStatus.SKIPPED;
+        if (status == null) {
+            return PipelineStatus.SKIPPED;
+        }
         return switch (status) {
             case SUCCESS -> PipelineStatus.SUCCESS;
             case FAILED -> PipelineStatus.FAILED;
@@ -263,47 +239,37 @@ public class VcsService {
             default -> PipelineStatus.SKIPPED;
         };
     }
-    public List<GitLabRepository> getRepositories() {
-        if (!isNotBlank(vcsToken)) return Collections.emptyList();
 
+    public List<GitLabRepository> getRepositories() {
         try {
-            // Holt alle Projekte, in denen der Token-Owner Mitglied ist
             final List<Project> projects = getGitLabApi().getProjectApi().getProjects();
 
-            return projects.stream()
-                .map(this::mapToGitLabRepository)
-                .toList();
+            return projects.stream().map(this::mapToGitLabRepository).toList();
         } catch (final GitLabApiException e) {
             log.error("Failed to fetch repositories from GitLab", e);
             return Collections.emptyList();
         }
     }
 
-    // --- Private Helper Mappings ---
-
     private GitLabRepository mapToGitLabRepository(final Project project) {
         List<MergeRequestDto> openMrDtos = Collections.emptyList();
         String lastPipelineStatus = PipelineStatus.SKIPPED.name().toLowerCase();
 
-        // 1. Offene Merge Requests für dieses spezifische Projekt abrufen
         try {
-            final MergeRequestFilter mrFilter = new MergeRequestFilter()
-                .withProjectId(project.getId())
-                .withState(MergeRequestState.OPENED);
+            final MergeRequestFilter mrFilter =
+                new MergeRequestFilter().withProjectId(project.getId()).withState(MergeRequestState.OPENED);
 
             final List<MergeRequest> openMrs = getGitLabApi().getMergeRequestApi().getMergeRequests(mrFilter);
-            openMrDtos = openMrs.stream()
-                .map(this::mapToMergeRequestDto)
-                .toList();
+            openMrDtos = openMrs.stream().map(this::mapToMergeRequestDto).toList();
         } catch (final GitLabApiException e) {
             log.warn("Failed to fetch merge requests for project {}: {}", project.getId(), e.getMessage());
         }
 
-        // 2. Status der letzten Pipeline auf dem Default-Branch (z.B. main / master) abrufen
         if (isNotBlank(project.getDefaultBranch())) {
             try {
                 final PipelineFilter pipelineFilter = new PipelineFilter().withRef(project.getDefaultBranch());
-                final List<Pipeline> pipelines = getGitLabApi().getPipelineApi().getPipelines(project.getId(), pipelineFilter);
+                final List<Pipeline> pipelines =
+                    getGitLabApi().getPipelineApi().getPipelines(project.getId(), pipelineFilter);
 
                 if (!pipelines.isEmpty()) {
                     lastPipelineStatus = mapPipelineStatus(pipelines.get(0).getStatus()).name().toLowerCase();
@@ -313,14 +279,7 @@ public class VcsService {
             }
         }
 
-        return new GitLabRepository(
-            project.getId(),
-            project.getWebUrl(),
-            project.getName(),
-            lastPipelineStatus,
-            project.getPathWithNamespace(),
-            openMrDtos.size(),
-            openMrDtos
-        );
+        return new GitLabRepository(project.getId(), project.getWebUrl(), project.getName(), lastPipelineStatus,
+            project.getPathWithNamespace(), openMrDtos.size(), openMrDtos);
     }
 }

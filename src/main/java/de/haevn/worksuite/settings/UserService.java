@@ -31,9 +31,14 @@ public class UserService {
     }
 
     @Transactional
-    public UserDTO getUser(final UUID id) {
+    public UserDTO getUserDTO(final UUID id) {
         final UserModel model = userRepository.findById(id).orElseThrow(NotFoundException::new);
         return UserDTO.fromModel(model);
+    }
+
+    @Transactional
+    public UserModel getUser(final UUID id) {
+        return userRepository.findById(id).orElseThrow(NotFoundException::new);
     }
 
     @Transactional

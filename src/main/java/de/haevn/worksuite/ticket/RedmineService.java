@@ -6,96 +6,114 @@ import de.haevn.redmine.api.RedmineClient;
 import de.haevn.redmine.api.RedmineException;
 import de.haevn.redmine.model.Issue;
 import de.haevn.redmine.model.RedmineInfoResponses;
-import de.haevn.worksuite.common.FileDownloadService;
+import de.haevn.worksuite.common.UserContextHolder;
+import de.haevn.worksuite.common.UserIntegrationContext;
 import de.haevn.worksuite.time.TimeService;
 import jakarta.validation.Valid;
-import java.net.URI;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 
 @Slf4j
 @Service
 public class RedmineService {
-    private final String apiKey;
-    private final String baseUrl;
-    private final FileDownloadService fileDownloadService;
-    private final RedmineClient redmineClient;
-    private final TimeService timeService;
-    private final List<Issue> issues = new ArrayList<>();
 
-    public RedmineService(final FileDownloadService fileDownloadService, @Value("${app.redmine.url}") String baseUrl,
-        @Value("${app.redmine.api-key}") String apiKey, final TimeService timeService) {
-        this.fileDownloadService = fileDownloadService;
+    private final String baseUrl;
+    private final TimeService timeService;
+
+    public RedmineService(@Value("${app.redmine.url}") final String baseUrl, final TimeService timeService) {
         this.timeService = timeService;
         if (baseUrl == null || baseUrl.isBlank()) {
             throw new IllegalArgumentException("Property 'app.redmine.url' must not be null or empty!");
         }
         this.baseUrl = baseUrl;
-        this.apiKey = apiKey;
-        this.redmineClient = RedmineClient.create(baseUrl, apiKey);
     }
 
-    //@Cacheable("tickets")
-    public List<Issue> fetch() throws RedmineException {
-        issues.clear();
-        issues.addAll(redmineClient.getMyAssignedIssues(QueryParams.values()));
-        for (int i = 0; i < issues.size(); i++) {
-            final Issue issue = issues.get(i);
-            final var t = getByIssuedId(issue.id());
-            if (t.isPresent()) {
-                issues.set(i, t.get());
-            }
+
+    private RedmineClient getClient() {
+        final UserIntegrationContext userCtx = UserContextHolder.getContext();
+        final String activeApiKey =
+            (userCtx != null && isNotBlank(userCtx.redmineApiKey())) ? userCtx.redmineApiKey() : "";
+
+        if (!isNotBlank(activeApiKey)) {
+            log.error("No Redmine API key available (neither in UserContext nor in fallback properties)");
+            throw new IllegalStateException("Redmine API key is not configured for the active user.");
         }
-        return issues;
+
+        return RedmineClient.create(this.baseUrl, activeApiKey);
+    }
+
+    public List<Issue> fetch() throws RedmineException {
+        final RedmineClient client = getClient();
+        final List<Issue> assignedIssues = client.getMyAssignedIssues(QueryParams.values());
+
+        // Lokale Liste statt instanzweitem Feld -> 100% thread-safe
+        final List<Issue> detailedIssues = new ArrayList<>(assignedIssues.size());
+
+        for (final Issue issue : assignedIssues) {
+            final Optional<Issue> detailed = client.getIssueById(issue.id(), QueryParams.values());
+            detailedIssues.add(detailed.orElse(issue));
+        }
+
+        return detailedIssues;
     }
 
     public Optional<Issue> getByIssuedId(final long id) throws RedmineException {
-        return redmineClient.getIssueById(id, QueryParams.values());
+        return getClient().getIssueById(id, QueryParams.values());
     }
 
     public void moveToStatus(final long ticketId, final TicketStatus status) throws RedmineException {
-        redmineClient.moveToStatus(ticketId, status.id);
+        getClient().moveToStatus(ticketId, status.id);
     }
 
-    public void addComment(final long ticketId, String comment) throws RedmineException {
-        redmineClient.addComment(ticketId, comment);
+    public void addComment(final long ticketId, final String comment) throws RedmineException {
+        getClient().addComment(ticketId, comment);
     }
 
-    public void bookTime(final long ticketId, int hours, int minutes, String description, int activityId,
-        Optional<String> dateOpt) throws RedmineException {
-
+    public void bookTime(final long ticketId, final int hours, final int minutes, final String description,
+        final int activityId, final Optional<String> dateOpt) throws RedmineException {
         final String date =
             dateOpt.filter(d -> d.matches("^\\d{4}-\\d{2}-\\d{2}$")).orElseGet(() -> LocalDate.now().toString());
 
-        redmineClient.logTime(ticketId, hours, minutes, description, activityId, date);
+        getClient().logTime(ticketId, hours, minutes, description, activityId, date);
     }
 
     public void createCheckboxes(final long ticketId) throws RedmineException {
-        redmineClient.addChecklistItem(ticketId, "");
-        redmineClient.addChecklistItem(ticketId, "");
-        redmineClient.addChecklistItem(ticketId, "");
-        redmineClient.addChecklistItem(ticketId, "");
-        redmineClient.addChecklistItem(ticketId, "");
-        redmineClient.addChecklistItem(ticketId, "");
+        final RedmineClient client = getClient();
+        for (int i = 0; i < 6; i++) {
+            client.addChecklistItem(ticketId, "");
+        }
     }
 
     public void tickCheckbox(final long ticketId, final int checkboxIndex, final boolean state)
         throws RedmineException {
-        redmineClient.tickCheckbox(ticketId, checkboxIndex, state);
+        getClient().tickCheckbox(ticketId, checkboxIndex, state);
     }
 
     public void moveToQs(final long id, final @Valid QaProtocolRequest data) throws RedmineException {
-        log.info("Moving to Qs for {}", id);
-        log.info("Got data {}", data.toString());
-        redmineClient.moveToStatus(id, 8, buildQAComment(data));
+        log.info("Moving ticket #{} to QS", id);
+        getClient().moveToStatus(id, 8, buildQAComment(data));
     }
+
+    public void addMergeRequestLink(final long id, final String mrLink) throws RedmineException {
+        getClient().setCustomField(id, mrLink, 1);
+    }
+
+    public void bookTicket(final long id, final @Valid LogTimeRequest request) throws RedmineException {
+        getClient().logTime(id, request.hours(), request.minutes(), request.comment(), request.activityId(),
+            request.day());
+        this.timeService.book(id, request);
+    }
+
+    public List<RedmineInfoResponses.InfoResponse> getInfo(final InfoType infoType) throws RedmineException {
+        return getClient().getInfo(infoType);
+    }
+
+    // --- Private Helper Methods ---
 
     private String buildQAComment(final QaProtocolRequest data) {
         final StringBuilder builder = new StringBuilder();
@@ -191,19 +209,4 @@ public class RedmineService {
     private boolean isNotBlank(final String str) {
         return str != null && !str.isBlank();
     }
-
-    public void addMergeRequestLink(final long id, final String mrLink) throws RedmineException {
-        redmineClient.setCustomField(id, mrLink, 1);
-    }
-
-    public void bookTicket(final long id, final @Valid LogTimeRequest request) throws RedmineException {
-        redmineClient.logTime(id, request.hours(), request.minutes(), request.comment(), request.activityId(),
-            request.day());
-        timeService.book(id, request);
-    }
-
-    public List<RedmineInfoResponses.InfoResponse> getInfo(final InfoType infoType) throws RedmineException {
-        return redmineClient.getInfo(infoType);
-    }
-
 }

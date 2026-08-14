@@ -37,19 +37,16 @@ public class WeeklyMeetingService {
 
     @Transactional
     public WeeklyMeeting generateNextWeek() {
-        // 1. Berechne den maßgeblichen Dienstag (heute oder der vorherige Dienstag)
         LocalDate targetTuesday =
             LocalDate.now(ZoneOffset.UTC).with(TemporalAdjusters.previousOrSame(DayOfWeek.TUESDAY));
 
         Instant startOfDay = targetTuesday.atStartOfDay(ZoneOffset.UTC).toInstant();
         Instant endOfDay = targetTuesday.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
 
-        // 2. Duplikats-Prüfung: Existiert bereits ein Meeting, das an diesem Dienstag erstellt wurde?
         if (weeklyMeetingRepository.existsByCreatedAtBetween(startOfDay, endOfDay)) {
             throw new BadRequestException("A weekly meeting for Tuesday, " + targetTuesday + " already exists.");
         }
 
-        // 3. Entity & Titel aufbauen (Dienstag bis Dienstag der Folgewoche)
         LocalDate endTuesday = targetTuesday.plusWeeks(1);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         String meetingTitle =
@@ -61,7 +58,6 @@ public class WeeklyMeetingService {
         meeting.setSummary("");
         meeting.setDaySummaries(new ArrayList<>());
 
-        // 4. Tage anlegen (0 bis 7 = 8 Tage-Spanne, Samstag/Sonntag überspringen)
         for (int i = 0; i <= 7; i++) {
             LocalDate currentDate = targetTuesday.plusDays(i);
             DayOfWeek dayOfWeek = currentDate.getDayOfWeek();
@@ -80,7 +76,6 @@ public class WeeklyMeetingService {
             meeting.getDaySummaries().add(daySummary);
         }
 
-        // 5. Persistieren
         return weeklyMeetingRepository.save(meeting);
     }
 
