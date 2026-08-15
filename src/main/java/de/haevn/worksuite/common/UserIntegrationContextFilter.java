@@ -20,6 +20,13 @@ public class UserIntegrationContextFilter extends OncePerRequestFilter {
     private final UserService userService;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/api/v1/about")
+            || path.startsWith("/actuator/");
+    }
+
+    @Override
     protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response, final FilterChain filterChain)
         throws ServletException, IOException {
         try {
