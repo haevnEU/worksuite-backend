@@ -1,7 +1,7 @@
 package de.haevn.worksuite.stats;
 
 import de.haevn.worksuite.common.exceptions.NotFoundException;
-import de.haevn.worksuite.time.Time;
+import de.haevn.worksuite.time.TimeEntry;
 import de.haevn.worksuite.time.TimeService;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
@@ -32,7 +32,7 @@ public class StatsService {
     public List<Stats> findAllStatsModels(final int limit) {
         final int amount = (limit > 0) ? limit : 7;
 
-        final List<Time> times = timeService.getAll(amount);
+        final List<TimeEntry> times = timeService.getAll(amount);
         final List<Stats> modelList = statsRepository.findStatsBefore(Instant.now(), amount);
 
         final Map<LocalDate, Integer> hoursPerDay = times.stream().filter(time -> time.getDate() != null).collect(
