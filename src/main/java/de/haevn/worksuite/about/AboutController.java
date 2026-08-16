@@ -14,7 +14,14 @@ public class AboutController {
 
     @GetMapping
     public AboutSystemInfoResponse getSystemInfo() {
-         return aboutService.getSystemInfo();
+        return aboutService.getSystemInfo();
+    }
+
+
+    @GetMapping("/ping")
+    public String ping() {
+
+        return "pongs";
     }
 
 }

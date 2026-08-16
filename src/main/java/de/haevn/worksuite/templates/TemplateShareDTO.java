@@ -7,19 +7,19 @@ import java.util.UUID;
 public record TemplateShareDTO(UUID id, String title, String content, List<String> tags, String platform,
                                LocalDateTime createdAt) {
 
-    public static TemplateShareDTO fromModel(final TemplateModel templateModel) {
-        return new TemplateShareDTO(templateModel.getId(), templateModel.getTitle(), templateModel.getContent(),
-            templateModel.getTags(), templateModel.getPlatform(), templateModel.getCreatedAt());
+    public static TemplateShareDTO fromModel(final Template template) {
+        return new TemplateShareDTO(template.getId(), template.getTitle(), template.getContent(),
+            template.getTags(), template.getPlatform(), template.getCreatedAt());
     }
 
-    public TemplateModel toModel() {
-        final TemplateModel templateModel = new TemplateModel();
-        templateModel.setTags(tags);
-        templateModel.setContent(content);
-        templateModel.setTitle(title);
-        templateModel.setPlatform(platform);
-        templateModel.setCreatedAt(createdAt);
-        templateModel.setId(id);
-        return templateModel;
+    public Template toModel() {
+        final Template template = new Template();
+        template.setTags(tags);
+        template.setContent(content);
+        template.setTitle(title);
+        template.setPlatform(platform);
+        template.setCreatedAt(createdAt);
+        template.setId(id);
+        return template;
     }
 }

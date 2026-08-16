@@ -6,10 +6,10 @@ import org.springframework.data.mongodb.core.mapping.event.BeforeConvertCallback
 import org.springframework.stereotype.Component;
 
 @Component
-public class NoteBeforeConvertCallback implements BeforeConvertCallback<NoteModel> {
+class NoteBeforeConvertCallback implements BeforeConvertCallback<Note> {
 
     @Override
-    public NoteModel onBeforeConvert(final NoteModel entity, final String collection) {
+    public Note onBeforeConvert(final Note entity, final String collection) {
         if (entity.getId() == null) {
             entity.setId(UUID.randomUUID());
         }

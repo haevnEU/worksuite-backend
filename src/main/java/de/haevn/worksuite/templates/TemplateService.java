@@ -22,14 +22,14 @@ public class TemplateService {
 
     @Transactional
     public TemplateShareDTO shareTemplate(final TemplateShareDTO templateShareDTO) {
-        final TemplateModel templateModel = templateShareRepository.save(templateShareDTO.toModel());
+        final Template template = templateShareRepository.save(templateShareDTO.toModel());
         websocketPushService.dispatch(new WsEvent(this.getClass(), Priority.INFO, "Template created."));
-        return TemplateShareDTO.fromModel(templateModel);
+        return TemplateShareDTO.fromModel(template);
     }
 
     @Transactional
     public TemplateShareDTO getTemplate(final UUID id) {
-        final TemplateModel model = templateShareRepository.findById(id).orElseThrow(NotFoundException::new);
+        final Template model = templateShareRepository.findById(id).orElseThrow(NotFoundException::new);
         return TemplateShareDTO.fromModel(model);
     }
 
@@ -42,7 +42,7 @@ public class TemplateService {
 
     @Transactional
     public TemplateShareDTO updateTemplate(final UUID id, final TemplateShareDTO templateShareDTO) {
-        final TemplateModel model = templateShareRepository.findById(id).orElseThrow(NotFoundException::new);
+        final Template model = templateShareRepository.findById(id).orElseThrow(NotFoundException::new);
 
         model.setContent(templateShareDTO.content());
         model.setPlatform(templateShareDTO.platform());
@@ -55,7 +55,7 @@ public class TemplateService {
 
     @Transactional
     public void deleteTemplate(final UUID id) {
-        final TemplateModel model = templateShareRepository.findById(id).orElseThrow(NotFoundException::new);
+        final Template model = templateShareRepository.findById(id).orElseThrow(NotFoundException::new);
         templateShareRepository.delete(model);
         websocketPushService.dispatch(new WsEvent(this.getClass(), Priority.INFO, "Template deleted."));
     }

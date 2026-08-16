@@ -16,7 +16,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "time_entries")
-public class TimeModel {
+public class TimeEntry {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;

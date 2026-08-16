@@ -29,12 +29,12 @@ public class StatsController {
     }
 
     @GetMapping("/{id}")
-    public StatsModel getRecord(@PathVariable final UUID id) {
+    public Stats getRecord(@PathVariable final UUID id) {
         return statsService.findStatsModelById(id);
     }
 
     @GetMapping
-    public List<StatsModel> getRecords(@RequestParam final int duration) {
+    public List<Stats> getRecords(@RequestParam final int duration) {
         return statsService.findAllStatsModels(duration);
     }
 

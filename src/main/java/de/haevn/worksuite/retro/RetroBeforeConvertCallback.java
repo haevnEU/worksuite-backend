@@ -7,10 +7,10 @@ import org.springframework.data.mongodb.core.mapping.event.BeforeConvertCallback
 import org.springframework.stereotype.Component;
 
 @Component
-public class RetroBeforeConvertCallback implements BeforeConvertCallback<RetroModel> {
+public class RetroBeforeConvertCallback implements BeforeConvertCallback<Retro> {
 
     @Override
-    public RetroModel onBeforeConvert(final RetroModel entity, final String collection) {
+    public Retro onBeforeConvert(final Retro entity, final String collection) {
         if (entity.getId() == null) {
             entity.setId(UUID.randomUUID());
         }

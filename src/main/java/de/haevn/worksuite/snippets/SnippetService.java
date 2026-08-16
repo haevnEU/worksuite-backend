@@ -21,15 +21,15 @@ public class SnippetService {
 
     @Transactional
     public SnippetShareDTO shareSnippet(final SnippetShareDTO snippetShareDTO) {
-        final SnippetModel snippetModel = snippetShareRepository.save(snippetShareDTO.toModel());
+        final Snippet snippet = snippetShareRepository.save(snippetShareDTO.toModel());
         websocketPushService.dispatch(
-            new WsEvent(this.getClass(), Priority.INFO, "Snippet shared: " + snippetModel.getId()));
-        return SnippetShareDTO.fromModel(snippetModel);
+            new WsEvent(this.getClass(), Priority.INFO, "Snippet shared: " + snippet.getId()));
+        return SnippetShareDTO.fromModel(snippet);
     }
 
     @Transactional
     public SnippetShareDTO getSnippet(final UUID id) {
-        final SnippetModel model = snippetShareRepository.findById(id).orElseThrow(NotFoundException::new);
+        final Snippet model = snippetShareRepository.findById(id).orElseThrow(NotFoundException::new);
         return SnippetShareDTO.fromModel(model);
     }
 
@@ -40,7 +40,7 @@ public class SnippetService {
 
     @Transactional
     public SnippetShareDTO updateSnippet(final UUID id, final SnippetShareDTO snippetShareDTO) {
-        final SnippetModel model = snippetShareRepository.findById(id).orElseThrow(NotFoundException::new);
+        final Snippet model = snippetShareRepository.findById(id).orElseThrow(NotFoundException::new);
         model.setContent(snippetShareDTO.content());
         model.setLanguage(snippetShareDTO.language());
         model.setTags(snippetShareDTO.tags());
@@ -52,7 +52,7 @@ public class SnippetService {
 
     @Transactional
     public void deleteSnippet(final UUID id) {
-        final SnippetModel model = snippetShareRepository.findById(id).orElseThrow(NotFoundException::new);
+        final Snippet model = snippetShareRepository.findById(id).orElseThrow(NotFoundException::new);
         snippetShareRepository.delete(model);
         websocketPushService.dispatch(new WsEvent(this.getClass(), Priority.INFO, "Snippet deleted."));
     }

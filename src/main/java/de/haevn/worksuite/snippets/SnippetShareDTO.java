@@ -7,19 +7,19 @@ import java.util.UUID;
 public record SnippetShareDTO(UUID id, String title, String content, List<String> tags, String language,
                               LocalDateTime createdAt) {
 
-    public static SnippetShareDTO fromModel(final SnippetModel snippetModel) {
-        return new SnippetShareDTO(snippetModel.getId(), snippetModel.getTitle(), snippetModel.getContent(),
-            snippetModel.getTags(), snippetModel.getLanguage(), snippetModel.getCreatedAt());
+    public static SnippetShareDTO fromModel(final Snippet snippet) {
+        return new SnippetShareDTO(snippet.getId(), snippet.getTitle(), snippet.getContent(),
+            snippet.getTags(), snippet.getLanguage(), snippet.getCreatedAt());
     }
 
-    public SnippetModel toModel() {
-        final SnippetModel snippetModel = new SnippetModel();
-        snippetModel.setTags(tags);
-        snippetModel.setContent(content);
-        snippetModel.setTitle(title);
-        snippetModel.setLanguage(language);
-        snippetModel.setCreatedAt(createdAt);
-        snippetModel.setId(id);
-        return snippetModel;
+    public Snippet toModel() {
+        final Snippet snippet = new Snippet();
+        snippet.setTags(tags);
+        snippet.setContent(content);
+        snippet.setTitle(title);
+        snippet.setLanguage(language);
+        snippet.setCreatedAt(createdAt);
+        snippet.setId(id);
+        return snippet;
     }
 }

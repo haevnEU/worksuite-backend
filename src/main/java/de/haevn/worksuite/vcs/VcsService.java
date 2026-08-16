@@ -1,7 +1,7 @@
 package de.haevn.worksuite.vcs;
 
-import de.haevn.worksuite.common.UserContextHolder;
-import de.haevn.worksuite.common.UserIntegrationContext;
+import de.haevn.worksuite.config.UserContextHolder;
+import de.haevn.worksuite.config.UserIntegrationContext;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;

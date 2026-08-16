@@ -3,9 +3,9 @@ package de.haevn.worksuite.download;
 import de.haevn.worksuite.common.FileDownloadService;
 import de.haevn.worksuite.common.PdfService;
 import de.haevn.worksuite.common.exceptions.NotFoundException;
-import de.haevn.worksuite.notes.NoteModel;
+import de.haevn.worksuite.notes.Note;
 import de.haevn.worksuite.notes.NoteRepository;
-import de.haevn.worksuite.retro.RetroModel;
+import de.haevn.worksuite.retro.Retro;
 import de.haevn.worksuite.retro.RetroRepository;
 import de.haevn.worksuite.share.ShareService;
 import de.haevn.worksuite.weekly.DaySummary;
@@ -32,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Log4j2
-public class DownloadService {
+class DownloadService {
 
     private final WeeklyMeetingService weeklyMeetingService;
     private final FileDownloadService fileDownloadService;
@@ -89,7 +89,7 @@ public class DownloadService {
 
     private ResponseEntity<Resource> downloadNotebookExport(final RequestDTO dto) {
         log.info("Downloading notebook export with id: " + dto.id());
-        final NoteModel model = noteRepository.findById(UUID.fromString(dto.id())).orElseThrow(NotFoundException::new);
+        final Note model = noteRepository.findById(UUID.fromString(dto.id())).orElseThrow(NotFoundException::new);
 
         final Map<String, Object> variables = Map.of("note", model);
         final Resource pdfResource = pdfService.generatePdfResource("pdf/note", variables, dto.isDraft());
@@ -104,7 +104,7 @@ public class DownloadService {
 
     private ResponseEntity<Resource> downloadRetrospectiveProtocol(final RequestDTO dto) {
         log.info("Downloading retrospective protocol with id: " + dto.id());
-        final RetroModel model =
+        final Retro model =
             retroRepository.findById(UUID.fromString(dto.id())).orElseThrow(NotFoundException::new);
 
         final Map<String, Object> variables = Map.of("retro", model);

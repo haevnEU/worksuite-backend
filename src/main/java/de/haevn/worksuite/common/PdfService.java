@@ -46,8 +46,8 @@ public class PdfService {
             final String htmlContent = templateEngine.process(templateName, context);
             return renderHtmlToPdf(htmlContent);
         } catch (Exception e) {
-            log.error("Fehler bei der PDF-Generierung für Template: {}", templateName, e);
-            throw new RuntimeException("Fehler bei der PDF-Generierung für Template: " + templateName, e);
+            log.error("Error while generation PDF template: {}", templateName, e);
+            throw new RuntimeException("Error while generating PDF for template: " + templateName, e);
         }
     }
 

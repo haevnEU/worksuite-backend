@@ -1,4 +1,4 @@
-package de.haevn.worksuite.common;
+package de.haevn.worksuite.config;
 
 public final class UserContextHolder {
     private static final ThreadLocal<UserIntegrationContext> CONTEXT = new ThreadLocal<>();

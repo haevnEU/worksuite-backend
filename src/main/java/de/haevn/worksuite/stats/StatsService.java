@@ -1,7 +1,7 @@
 package de.haevn.worksuite.stats;
 
 import de.haevn.worksuite.common.exceptions.NotFoundException;
-import de.haevn.worksuite.time.TimeModel;
+import de.haevn.worksuite.time.Time;
 import de.haevn.worksuite.time.TimeService;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
@@ -24,18 +24,18 @@ public class StatsService {
     final TimeService timeService;
 
     @Transactional
-    public StatsModel findStatsModelById(final UUID id) {
+    public Stats findStatsModelById(final UUID id) {
         return statsRepository.findById(id).orElseThrow(NotFoundException::new);
     }
 
     @Transactional
-    public List<StatsModel> findAllStatsModels(final int limit) {
+    public List<Stats> findAllStatsModels(final int limit) {
         final int amount = (limit > 0) ? limit : 7;
 
-        final List<TimeModel> timeModels = timeService.getAll(amount);
-        final List<StatsModel> modelList = statsRepository.findStatsBefore(Instant.now(), amount);
+        final List<Time> times = timeService.getAll(amount);
+        final List<Stats> modelList = statsRepository.findStatsBefore(Instant.now(), amount);
 
-        final Map<LocalDate, Integer> hoursPerDay = timeModels.stream().filter(time -> time.getDate() != null).collect(
+        final Map<LocalDate, Integer> hoursPerDay = times.stream().filter(time -> time.getDate() != null).collect(
             Collectors.groupingBy(time -> time.getDate().atZone(ZoneOffset.UTC).toLocalDate(),
                 Collectors.summingInt(time -> {
                     final int totalMinutes = (time.getHours() * 60) + time.getMinutes();
@@ -61,7 +61,7 @@ public class StatsService {
 
     @Transactional
     public UUID createNewRecord(final Instant date) {
-        StatsModel statsModel = new StatsModel();
+        Stats statsModel = new Stats();
         statsModel.setDay(date);
         statsModel.setHoursSpent(0);
         statsModel.setMovedToQa(0);
@@ -73,10 +73,10 @@ public class StatsService {
 
     @Transactional
     public void incrementStat(final UUID uuid, final Stat stat, final int amount) {
-        StatsModel statsModel = findStatsModelById(uuid);
+        Stats statsModel = findStatsModelById(uuid);
         final Instant startOfToday = LocalDate.now(ZoneOffset.UTC).atStartOfDay(ZoneOffset.UTC).toInstant();
         if (statsModel.getDay() != null && statsModel.getDay().isBefore(startOfToday)) {
-            statsModel = new StatsModel();
+            statsModel = new Stats();
             statsModel.setDay(Instant.now());
         }
         switch (stat) {

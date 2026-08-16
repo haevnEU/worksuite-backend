@@ -7,19 +7,19 @@ import java.util.UUID;
 public record RetroDTO(UUID id, String sprintName, List<String> positive, List<String> negative,
                        List<String> actionItems, LocalDateTime createdAt) {
 
-    public static RetroDTO fromModel(final RetroModel retroModel) {
-        return new RetroDTO(retroModel.getId(), retroModel.getSprintName(), retroModel.getPositive(),
-            retroModel.getNegative(), retroModel.getActionItems(), retroModel.getCreatedAt());
+    public static RetroDTO fromModel(final Retro retro) {
+        return new RetroDTO(retro.getId(), retro.getSprintName(), retro.getPositive(),
+            retro.getNegative(), retro.getActionItems(), retro.getCreatedAt());
     }
 
-    public RetroModel toModel() {
-        final RetroModel retroModel = new RetroModel();
-        retroModel.setSprintName(sprintName);
-        retroModel.setPositive(positive);
-        retroModel.setNegative(negative);
-        retroModel.setActionItems(actionItems);
-        retroModel.setCreatedAt(createdAt);
-        retroModel.setId(id);
-        return retroModel;
+    public Retro toModel() {
+        final Retro retro = new Retro();
+        retro.setSprintName(sprintName);
+        retro.setPositive(positive);
+        retro.setNegative(negative);
+        retro.setActionItems(actionItems);
+        retro.setCreatedAt(createdAt);
+        retro.setId(id);
+        return retro;
     }
 }

@@ -24,22 +24,22 @@ public class RetroService {
 
     @Transactional
     public RetroDTO createRetro(final String name) {
-        RetroModel retro = new RetroModel();
+        Retro retro = new Retro();
         retro.setSprintName(name);
-        final RetroModel retroModel = retroRepository.save(retro);
+        final Retro retroModel = retroRepository.save(retro);
         websocketPushService.dispatch(new WsEvent(this.getClass(), Priority.INFO, "Retro created: " + name));
         return RetroDTO.fromModel(retroModel);
     }
 
     @Transactional
     public RetroDTO getRetroWeek(final UUID id) {
-        final RetroModel model = retroRepository.findById(id).orElseThrow(NotFoundException::new);
+        final Retro model = retroRepository.findById(id).orElseThrow(NotFoundException::new);
         return RetroDTO.fromModel(model);
     }
 
     @Transactional
     public void addToPositiveList(final UUID retroId, final String item) {
-        final RetroModel model = retroRepository.findById(retroId).orElseThrow(NotFoundException::new);
+        final Retro model = retroRepository.findById(retroId).orElseThrow(NotFoundException::new);
         if (model.getPositive().contains(item)) {
             return;
         }
@@ -49,7 +49,7 @@ public class RetroService {
 
     @Transactional
     public void addToNegativeList(final UUID retroId, final String item) {
-        final RetroModel model = retroRepository.findById(retroId).orElseThrow(NotFoundException::new);
+        final Retro model = retroRepository.findById(retroId).orElseThrow(NotFoundException::new);
         if (model.getNegative().contains(item)) {
             return;
         }
@@ -59,7 +59,7 @@ public class RetroService {
 
     @Transactional
     public void addToActionItemList(final UUID retroId, final String item) {
-        final RetroModel model = retroRepository.findById(retroId).orElseThrow(NotFoundException::new);
+        final Retro model = retroRepository.findById(retroId).orElseThrow(NotFoundException::new);
         if (model.getActionItems().contains(item)) {
             return;
         }
@@ -69,21 +69,21 @@ public class RetroService {
 
     @Transactional
     public void removeFromPositiveList(final UUID retroId, final String item) {
-        final RetroModel model = retroRepository.findById(retroId).orElseThrow(NotFoundException::new);
+        final Retro model = retroRepository.findById(retroId).orElseThrow(NotFoundException::new);
         model.getPositive().remove(item);
         retroRepository.save(model);
     }
 
     @Transactional
     public void removeFromNegativeList(final UUID retroId, final String item) {
-        final RetroModel model = retroRepository.findById(retroId).orElseThrow(NotFoundException::new);
+        final Retro model = retroRepository.findById(retroId).orElseThrow(NotFoundException::new);
         model.getNegative().remove(item);
         retroRepository.save(model);
     }
 
     @Transactional
     public void removeFromActionItemList(final UUID retroId, final String item) {
-        final RetroModel model = retroRepository.findById(retroId).orElseThrow(NotFoundException::new);
+        final Retro model = retroRepository.findById(retroId).orElseThrow(NotFoundException::new);
         model.getActionItems().remove(item);
         retroRepository.save(model);
     }

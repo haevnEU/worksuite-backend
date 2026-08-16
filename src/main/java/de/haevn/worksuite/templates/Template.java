@@ -1,4 +1,4 @@
-package de.haevn.worksuite.snippets;
+package de.haevn.worksuite.templates;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -9,8 +9,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Document(collection = "snippets")
-public class SnippetModel {
+@Document(collection = "templates")
+public class Template {
 
     @Id
     private UUID id;
@@ -24,5 +24,5 @@ public class SnippetModel {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    private String language;
+    private String platform;
 }

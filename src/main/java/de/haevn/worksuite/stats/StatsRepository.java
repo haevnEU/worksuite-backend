@@ -6,10 +6,10 @@ import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface StatsRepository extends JpaRepository<StatsModel, UUID> {
-    List<StatsModel> findByCreatedAtBeforeOrderByCreatedAtDesc(final Instant date, final Pageable pageable);
+public interface StatsRepository extends JpaRepository<Stats, UUID> {
+    List<Stats> findByCreatedAtBeforeOrderByCreatedAtDesc(final Instant date, final Pageable pageable);
 
-    default List<StatsModel> findStatsBefore(final Instant date, final int amount) {
+    default List<Stats> findStatsBefore(final Instant date, final int amount) {
         return findByCreatedAtBeforeOrderByCreatedAtDesc(date, Pageable.ofSize(amount));
     }
 }

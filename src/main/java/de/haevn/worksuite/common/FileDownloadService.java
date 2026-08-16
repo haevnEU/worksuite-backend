@@ -8,13 +8,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -26,7 +23,7 @@ public class FileDownloadService {
     public ResponseEntity<Resource> downloadWithRestClient(final URI uri, final String securityHeaderName,
         final String securityHeaderValue) {
 
-        Objects.requireNonNull(uri, "URI darf nicht null sein.");
+        Objects.requireNonNull(uri, "URI cannot be null.");
         validateUri(uri);
         final RestClient restClient = RestClient.create();
         return restClient.get().uri(uri).headers(headers -> {
@@ -44,27 +41,27 @@ public class FileDownloadService {
 
     private void validateUri(final URI uri) {
         if (uri == null) {
-            throw new IllegalArgumentException("URI darf nicht null sein.");
+            throw new IllegalArgumentException("URI cannot be null.");
         }
 
         //if (!"https".equalsIgnoreCase(uri.getScheme())) {
-        //    throw new SecurityException("Nur HTTPS-Verbindungen sind erlaubt!");
+        //    throw new SecurityException("Only HTTPS connections are allowed!");
         //}
 
         final String host = uri.getHost();
         if (host == null || !host.equalsIgnoreCase(ALLOWED_HOST)) {
-            throw new SecurityException("Zugriff auf diese Adresse ist nicht gestattet: " + host);
+            throw new SecurityException("Access to this address is not allowed: " + host);
         }
 
         try {
             final InetAddress[] addresses = InetAddress.getAllByName(host);
             for (final InetAddress addr : addresses) {
                 if (addr.isLoopbackAddress() || addr.isSiteLocalAddress() || addr.isAnyLocalAddress()) {
-                    throw new SecurityException("Zugriff auf interne IP-Adressen ist verboten!");
+                    throw new SecurityException("Access to internal IP addresses is forbidden!");
                 }
             }
         } catch (UnknownHostException e) {
-            throw new IllegalArgumentException("Host konnte nicht aufgelöst werden: " + host, e);
+            throw new IllegalArgumentException("Host could not be resolved: " + host, e);
         }
     }
 }

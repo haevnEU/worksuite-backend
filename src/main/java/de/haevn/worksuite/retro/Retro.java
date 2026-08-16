@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document(collection = "retro")
-public class RetroModel {
+public class Retro {
 
     @Id
     private UUID id;

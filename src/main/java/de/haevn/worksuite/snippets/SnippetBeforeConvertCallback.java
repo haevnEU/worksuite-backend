@@ -7,10 +7,10 @@ import org.springframework.data.mongodb.core.mapping.event.BeforeConvertCallback
 import org.springframework.stereotype.Component;
 
 @Component
-public class SnippetBeforeConvertCallback implements BeforeConvertCallback<SnippetModel> {
+public class SnippetBeforeConvertCallback implements BeforeConvertCallback<Snippet> {
 
     @Override
-    public SnippetModel onBeforeConvert(SnippetModel entity, String collection) {
+    public Snippet onBeforeConvert(Snippet entity, String collection) {
         if (entity.getId() == null) {
             entity.setId(UUID.randomUUID());
         }

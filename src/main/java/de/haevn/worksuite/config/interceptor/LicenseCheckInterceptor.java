@@ -1,8 +1,7 @@
-package de.haevn.worksuite.common;
+package de.haevn.worksuite.config.interceptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.haevn.worksuite.settings.LicenseService;
-import de.haevn.worksuite.settings.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -26,11 +25,8 @@ public class LicenseCheckInterceptor implements HandlerInterceptor {
     private final ObjectMapper objectMapper;
 
     @Override
-    public boolean preHandle(
-        HttpServletRequest request,
-        HttpServletResponse response,
-        Object handler
-    ) throws Exception {
+    public boolean preHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler)
+        throws Exception {
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             return true;
         }
@@ -63,16 +59,14 @@ public class LicenseCheckInterceptor implements HandlerInterceptor {
         }
     }
 
-    private void sendPaymentRequiredResponse(HttpServletResponse response) throws IOException {
-        response.setStatus(HttpStatus.PAYMENT_REQUIRED.value()); // HTTP 402
+    private void sendPaymentRequiredResponse(final HttpServletResponse response) throws IOException {
+        response.setStatus(HttpStatus.PAYMENT_REQUIRED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
-        final Map<String, Object> errorPayload = Map.of(
-            "status", HttpStatus.PAYMENT_REQUIRED.value(),
-            "error", "Payment Required",
-            "message", "Your workspace license has expired. Please renew your subscription to continue."
-        );
+        final Map<String, Object> errorPayload =
+            Map.of("status", HttpStatus.PAYMENT_REQUIRED.value(), "error", "Payment Required", "message",
+                "Your workspace license has expired. Please renew your subscription to continue.");
 
         response.getWriter().write(objectMapper.writeValueAsString(errorPayload));
     }

@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document(collection = "notes")
-public class NoteModel {
+public class Note {
 
     @Id
     private UUID id;

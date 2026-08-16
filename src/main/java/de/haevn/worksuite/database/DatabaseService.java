@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Log4j2
-public class DatabaseService {
+class DatabaseService {
     private final DatabaseRecordRepository databaseRecordRepository;
 
     public Map<String, List<DatabaseRecord>> getDatabaseRecords(final Optional<String> searchParam,

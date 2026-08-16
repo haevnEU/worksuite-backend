@@ -1,4 +1,4 @@
-package de.haevn.worksuite.common;
+package de.haevn.worksuite.config;
 
 import java.util.UUID;
 

@@ -15,7 +15,7 @@ import tools.jackson.databind.ObjectMapper;
 @Log4j2
 @RequiredArgsConstructor
 @Component
-public class DatabaseRecordRepository {
+class DatabaseRecordRepository {
     private final ObjectMapper objectMapper;
 
     @Cacheable("databaseRecords")

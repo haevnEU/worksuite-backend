@@ -17,14 +17,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class TimeService {
     private final TimeRepository timeRepository;
 
-    public List<TimeModel> getForToday() {
+    public List<TimeEntry> getForToday() {
         final Instant startOfToday = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant();
         final Instant endOfToday = LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
 
         return timeRepository.findByDateBetweenOrderByDateDesc(startOfToday, endOfToday);
     }
 
-    public List<TimeModel> getAll(final int historyDays) {
+    public List<TimeEntry> getAll(final int historyDays) {
         final Instant startThreshold =
             LocalDate.now().minusDays(historyDays).atStartOfDay(ZoneId.systemDefault()).toInstant();
 
@@ -33,13 +33,13 @@ public class TimeService {
 
     @Transactional
     public void book(final long ticketId, final LogTimeRequest timeDTO) {
-        final TimeModel timeModel = new TimeModel();
-        timeModel.setDescription(timeDTO.comment());
-        timeModel.setHours(timeDTO.hours());
-        timeModel.setMinutes(timeDTO.minutes());
-        timeModel.setDate(LocalDate.parse(timeDTO.day()).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        timeModel.setActivityId(timeDTO.activityId());
-        timeModel.setTicketId(ticketId);
-        timeRepository.save(timeModel);
+        final TimeEntry timeEntry = new TimeEntry();
+        timeEntry.setDescription(timeDTO.comment());
+        timeEntry.setHours(timeDTO.hours());
+        timeEntry.setMinutes(timeDTO.minutes());
+        timeEntry.setDate(LocalDate.parse(timeDTO.day()).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        timeEntry.setActivityId(timeDTO.activityId());
+        timeEntry.setTicketId(ticketId);
+        timeRepository.save(timeEntry);
     }
 }

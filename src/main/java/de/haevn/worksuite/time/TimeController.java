@@ -18,7 +18,7 @@ public class TimeController {
 
     @GetMapping
     public List<TimeDTO> getTimeEntries(@RequestParam(required = false) final Optional<Integer> history) {
-        final List<TimeModel> modelList;
+        final List<TimeEntry> modelList;
         if (history.isPresent()) {
             modelList = timeService.getAll(history.get());
         } else {

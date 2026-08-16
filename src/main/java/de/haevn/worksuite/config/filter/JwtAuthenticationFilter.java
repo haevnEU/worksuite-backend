@@ -1,4 +1,4 @@
-package de.haevn.worksuite.common;
+package de.haevn.worksuite.config.filter;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -12,28 +12,23 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import javax.crypto.SecretKey;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    @Value("${jwt.secret:SuperSecretKeyWhichIsAtLeast32BytesLongForHS256Algorithm!}")
-    private String secretKey;
+    private final SecretKey signingKey;
 
-    private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+    public JwtAuthenticationFilter(final String secretKey) {
+        this.signingKey = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
-        @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(final HttpServletRequest request, final HttpServletResponse response,
+        final FilterChain filterChain) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
 
@@ -45,16 +40,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt = authHeader.substring(7);
 
         try {
-            Claims claims = Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(jwt).getPayload();
+            final Claims claims = Jwts.parser().verifyWith(this.signingKey).build().parseSignedClaims(jwt).getPayload();
 
-            String userId = claims.getSubject();
-            String role = claims.get("role", String.class);
+            final String userId = claims.getSubject();
+            final String role = claims.get("role", String.class);
 
             if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                List<SimpleGrantedAuthority> authorities =
+                final List<SimpleGrantedAuthority> authorities =
                     role != null ? List.of(new SimpleGrantedAuthority("ROLE_" + role)) : Collections.emptyList();
 
-                UsernamePasswordAuthenticationToken authToken =
+                final UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(userId, null, authorities);
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

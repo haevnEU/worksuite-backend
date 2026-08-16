@@ -1,6 +1,5 @@
 package de.haevn.worksuite.notes;
 
-import de.haevn.worksuite.common.PdfService;
 import de.haevn.worksuite.common.exceptions.NotFoundException;
 import de.haevn.worksuite.push.WebsocketPushService;
 import de.haevn.worksuite.push.events.Priority;
@@ -15,23 +14,22 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Log4j2
-public class NoteService {
+class NoteService {
 
     private final WebsocketPushService websocketPushService;
     private final NoteRepository noteRepository;
-    private final PdfService pdfService;
 
     @Transactional
     public NoteDTO create(final NoteDTO noteDTO) {
-        final NoteModel noteModel = noteRepository.save(noteDTO.toModel());
+        final Note note = noteRepository.save(noteDTO.toModel());
         websocketPushService.dispatch(
-            new WsEvent(this.getClass(), Priority.INFO, "Note created: " + noteModel.getTitle()));
-        return NoteDTO.fromModel(noteModel);
+            new WsEvent(this.getClass(), Priority.INFO, "Note created: " + note.getTitle()));
+        return NoteDTO.fromModel(note);
     }
 
     @Transactional
     public NoteDTO getById(final UUID id) {
-        final NoteModel model = noteRepository.findById(id).orElseThrow(NotFoundException::new);
+        final Note model = noteRepository.findById(id).orElseThrow(NotFoundException::new);
         return NoteDTO.fromModel(model);
     }
 
@@ -42,7 +40,7 @@ public class NoteService {
 
     @Transactional
     public NoteDTO update(final UUID id, final NoteDTO noteDTO) {
-        final NoteModel model = noteRepository.findById(id).orElseThrow(NotFoundException::new);
+        final Note model = noteRepository.findById(id).orElseThrow(NotFoundException::new);
         model.setContent(noteDTO.content());
         model.setTicketId(noteDTO.ticketId());
         model.setTitle(noteDTO.title());
@@ -53,7 +51,7 @@ public class NoteService {
 
     @Transactional
     public void delete(final UUID id) {
-        final NoteModel model = noteRepository.findById(id).orElseThrow(NotFoundException::new);
+        final Note model = noteRepository.findById(id).orElseThrow(NotFoundException::new);
         noteRepository.delete(model);
         websocketPushService.dispatch(new WsEvent(this.getClass(), Priority.INFO, "Note deleted: " + model.getTitle()));
     }
