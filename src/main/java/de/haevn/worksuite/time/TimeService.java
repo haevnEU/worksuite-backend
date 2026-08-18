@@ -1,6 +1,6 @@
 package de.haevn.worksuite.time;
 
-import de.haevn.worksuite.ticket.LogTimeRequest;
+import de.haevn.worksuite.ticket.dtos.LogTimeRequest;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;

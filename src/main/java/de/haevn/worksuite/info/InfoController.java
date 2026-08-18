@@ -1,7 +1,7 @@
 package de.haevn.worksuite.info;
 
-import de.haevn.redmine.api.RedmineException;
-import de.haevn.redmine.model.RedmineInfoResponses;
+import de.haevn.worksuite.ticket.TicketProviderType;
+import de.haevn.worksuite.ticket.dtos.InfoResponse;
 import de.haevn.worksuite.common.RestApiController;
 import de.haevn.worksuite.common.exceptions.ErrorResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Controller exposing endpoints for inspecting workspace integration metadata and system dictionaries.
@@ -38,7 +39,6 @@ public class InfoController {
      * Retrieves Redmine metadata dictionaries such as available statuses, activities, and priorities.
      *
      * @return dictionary map containing metadata collections
-     * @throws RedmineException if fetching metadata from the Redmine backend fails
      */
     @Operation(summary = "Get Redmine metadata",
         description = "Fetches dictionaries of ticket activities, issue statuses, and priority levels from the configured Redmine service.")
@@ -48,8 +48,8 @@ public class InfoController {
         @ApiResponse(responseCode = "502", description = "Failed to communicate with the remote Redmine API",
             content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))})
     @GetMapping(value = "/redmine", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, List<RedmineInfoResponses.InfoResponse>> getRedmineInfo() throws RedmineException {
+    public Map<String, List<InfoResponse>> getRedmineInfo(@RequestParam(name = "provider", defaultValue = "REDMINE") final TicketProviderType provider) {
         log.info("Handling request to fetch Redmine metadata catalogues");
-        return infoService.getRedmineInfo();
+        return infoService.getRedmineInfo(provider);
     }
 }
