@@ -61,6 +61,9 @@ public class UserModel {
     @Column(name = "vcs_key")
     private String vcsKey;
 
+    @Column(name = "vcs_provider")
+    private String vcsProvider;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 

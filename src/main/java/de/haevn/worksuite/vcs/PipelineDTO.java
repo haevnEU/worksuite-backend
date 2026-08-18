@@ -27,7 +27,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * @param updatedAt last update timestamp string
  */
 @Schema(description = "Execution status of a pipeline on a protected Git branch")
-public record ProtectedBranchPipelineDto(
+public record PipelineDTO(
 
     @Schema(description = "Pipeline identifier", example = "9901") String id,
 

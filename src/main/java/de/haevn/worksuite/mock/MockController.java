@@ -1,13 +1,12 @@
 package de.haevn.worksuite.mock;
 
-import de.haevn.redmine.api.RedmineException;
 import de.haevn.worksuite.common.RestApiController;
-import java.util.List;
-import java.util.Map;
+import java.time.Instant;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RequiredArgsConstructor
 @RestApiController("/api/v1/mock")
@@ -15,12 +14,14 @@ public class MockController {
     private final MockService mockService;
 
     @GetMapping
-    public List<String> getSupportedMocks() {
+    public Set<MockType> getSupportedMocks() {
         return mockService.getSupportedMocks();
     }
 
-    @PostMapping("/{type}")
-    public Map<String, Object> getMockData(@PathVariable final MockType type) throws RedmineException {
-        return mockService.getMockData(type);
+    @GetMapping("/{type}")
+    public MockResposneDTO getMockData(@PathVariable final MockType type,
+        @RequestParam(defaultValue = "1", required = false) final int amount) {
+        final String mock = mockService.getMockData(type, amount);
+        return new MockResposneDTO(mock, amount, Instant.now());
     }
 }

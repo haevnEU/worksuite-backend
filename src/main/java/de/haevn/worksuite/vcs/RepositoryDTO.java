@@ -29,7 +29,7 @@ import java.util.List;
  * @param mergeRequests list of active {@link MergeRequestDto} items belonging to the repository
  */
 @Schema(description = "GitLab repository summary with associated open Merge Requests")
-public record GitLabRepository(
+public record RepositoryDTO(
 
     @Schema(description = "Project numerical ID", example = "108") long number,
 

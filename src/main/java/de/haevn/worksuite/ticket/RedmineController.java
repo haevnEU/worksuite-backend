@@ -5,6 +5,7 @@ import de.haevn.redmine.model.Issue;
 import de.haevn.worksuite.common.RestApiController;
 import de.haevn.worksuite.common.exceptions.ErrorResponseDTO;
 import de.haevn.worksuite.vcs.MrProtocolRequest;
+import de.haevn.worksuite.vcs.VcsProvider;
 import de.haevn.worksuite.vcs.VcsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -139,10 +140,12 @@ public class RedmineController {
             content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))})
     @PostMapping(value = "/{id}/merge-request", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void createMergeRequest(
-        @Parameter(description = "Ticket identifier", example = "4021") @PathVariable final long id,
+        @Parameter(description = "Ticket identifier", example = "4021", required = true) @PathVariable final long id,
+        @Parameter(description = "VCS provider type (defaults to GITLAB)", example = "GITLAB")
+        @RequestParam(name = "provider", defaultValue = "GITLAB") final VcsProvider provider,
         @RequestBody final MrProtocolRequest protocol) throws RedmineException {
-        log.info("Creating Merge Request for ticket #{}", id);
-        final String mrLink = vcsService.createMergeRequest(id, protocol);
+        log.info("Creating Merge Request for ticket #{} using provider {}", id, provider);
+        final String mrLink = vcsService.createMergeRequest(provider, id, protocol);
         redmineService.addMergeRequestLink(id, mrLink);
     }
 
