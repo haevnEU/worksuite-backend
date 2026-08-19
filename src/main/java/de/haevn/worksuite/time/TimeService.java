@@ -1,9 +1,11 @@
 package de.haevn.worksuite.time;
 
 import de.haevn.worksuite.ticket.dtos.LogTimeRequest;
+import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -75,5 +77,20 @@ public class TimeService {
 
         timeRepository.save(timeEntry);
         log.info("Recorded local time entry: {}h {}m on ticket #{}", timeDTO.hours(), timeDTO.minutes(), ticketId);
+    }
+
+    public TotalTimeDTO getWeeklyTotal() {
+        final Instant startOfWeek = LocalDate.now().with(DayOfWeek.MONDAY).atStartOfDay(ZoneId.systemDefault()).toInstant();
+        final Instant endOfWeek = startOfWeek.plus(7, ChronoUnit.DAYS);
+
+        final List<TimeEntry> entries = timeRepository.findByDateBetweenOrderByDateDesc(startOfWeek, endOfWeek);
+        final int totalHours = entries.stream().mapToInt(TimeEntry::getHours).sum();
+        final int totalMinutes = entries.stream().mapToInt(TimeEntry::getMinutes).sum();
+
+        // normalize hours and minutes
+        int normalizedHours = totalHours + totalMinutes / 60;
+        int normalizedMinutes = totalMinutes % 60;
+
+        return new TotalTimeDTO(normalizedHours, normalizedMinutes);
     }
 }

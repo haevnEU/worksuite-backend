@@ -55,4 +55,20 @@ public class TimeController {
 
         return entries.stream().map(TimeDTO::new).toList();
     }
+
+    /**
+     * Retrieves the total recorded time for the current week.
+     *
+     * @return total hours and minutes for the current week
+     */
+    @Operation(summary = "Get weekly total",
+        description = "Retrieves the total recorded time for the current week.")
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "Weekly total retrieved successfully",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = TotalTimeDTO.class)))})
+    @GetMapping(value = "/weekly-total", produces = MediaType.APPLICATION_JSON_VALUE)
+    public TotalTimeDTO getWeeklyTotal() {
+        log.info("Request received to fetch weekly total");
+        return timeService.getWeeklyTotal();
+    }
 }
