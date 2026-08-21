@@ -19,9 +19,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    private static final String[] PUBLIC_API_PATTERNS = {
+    private static final String[] PUBLIC_ENDPOINTS = {
+        "/api/ws/**",
+        "/api/v1/share",
+        "/api/v1/share/**",
+        "/api/v1/about",
         "/api/v1/about/**",
-        "/api/v1/share/**"
+        "/actuator/health"
     };
 
     private static final String[] SWAGGER_EXCLUSIONS = {
@@ -50,12 +54,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addInterceptors(@NonNull final InterceptorRegistry registry) {
         registry.addInterceptor(userIntegrationContextInterceptor)
             .addPathPatterns("/api/v1/**")
-            .excludePathPatterns(PUBLIC_API_PATTERNS)
+            .excludePathPatterns(PUBLIC_ENDPOINTS)
             .excludePathPatterns(SWAGGER_EXCLUSIONS);
 
         registry.addInterceptor(licenseCheckInterceptor)
             .addPathPatterns("/api/v1/**")
-            .excludePathPatterns(PUBLIC_API_PATTERNS)
+            .excludePathPatterns(PUBLIC_ENDPOINTS)
             .excludePathPatterns(SWAGGER_EXCLUSIONS);
 
         registry.addInterceptor(routeUsageTrackingInterceptor)
