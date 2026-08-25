@@ -4,10 +4,12 @@ import de.haevn.worksuite.config.interceptor.LicenseCheckInterceptor;
 import de.haevn.worksuite.config.interceptor.RouteUsageTrackingInterceptor;
 import de.haevn.worksuite.config.interceptor.UserIntegrationContextInterceptor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.NonNull;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -92,5 +94,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
             )
             .allowCredentials(true)
             .maxAge(3600);
+    }
+
+    @Bean
+    public RestClient.Builder restClientBuilder() {
+        return RestClient.builder();
     }
 }

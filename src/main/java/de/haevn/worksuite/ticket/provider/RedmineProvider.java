@@ -8,11 +8,11 @@ import de.haevn.redmine.model.Issue;
 import de.haevn.redmine.model.RedmineInfoResponses;
 import de.haevn.worksuite.config.UserContextHolder;
 import de.haevn.worksuite.config.UserIntegrationContext;
-import de.haevn.worksuite.ticket.dtos.LogTimeRequest;
-import de.haevn.worksuite.ticket.dtos.QaProtocolRequest;
 import de.haevn.worksuite.ticket.TicketProviderType;
 import de.haevn.worksuite.ticket.TicketStatus;
 import de.haevn.worksuite.ticket.dtos.InfoResponse;
+import de.haevn.worksuite.ticket.dtos.LogTimeRequest;
+import de.haevn.worksuite.ticket.dtos.QaProtocolRequest;
 import de.haevn.worksuite.ticket.dtos.Ticket;
 import de.haevn.worksuite.time.TimeService;
 import jakarta.validation.Valid;
@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -64,6 +65,7 @@ public class RedmineProvider implements TicketProvider {
         return TicketProviderType.REDMINE;
     }
 
+    //@Cacheable(value = "assignedTickets")
     @Override
     public List<Ticket> fetch() {
         try {

@@ -42,7 +42,8 @@ app:
   vcs:
     url: ${GITLAB_URL}
     api-key: ${GITLAB_API_KEY}
-
+    repos:
+      watched: ${APP_VCS_REPOS_WATCHED}
 server:
   forward-headers-strategy: framework
 
