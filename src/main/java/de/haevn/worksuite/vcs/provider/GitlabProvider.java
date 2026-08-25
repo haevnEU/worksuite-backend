@@ -1,5 +1,6 @@
 package de.haevn.worksuite.vcs.provider;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.haevn.worksuite.common.exceptions.NotFoundException;
 import de.haevn.worksuite.config.UserContextHolder;
@@ -14,9 +15,6 @@ import de.haevn.worksuite.vcs.provider.gitlab.GitLabPipeline;
 import de.haevn.worksuite.vcs.provider.gitlab.GitLabProject;
 import de.haevn.worksuite.vcs.provider.gitlab.GitLabUser;
 import io.micrometer.common.util.StringUtils;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,7 +27,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.info.GitProperties;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -43,13 +40,12 @@ import org.springframework.web.client.RestClient;
 @Component
 public class GitlabProvider implements VcsProvider {
 
-    private static final String DEFAULT_TARGET_BRANCH = "master";
     private static final String DRAFT_PREFIX = "Draft:";
 
     private final GitProperties gitProperties;
     private final RestClient.Builder restClientBuilder;
 
-    @Value("${app.vcs.repos.watched}")
+    @Value("${app.vcs.repos.watched:}")
     private String targetRepoList;
 
     @Value("${app.vcs.url}")
@@ -58,81 +54,30 @@ public class GitlabProvider implements VcsProvider {
     @Value("${app.redmine.url:http://localhost/redmine}")
     private String ticketUrl;
 
+    /**
+     * Constructs the {@link GitlabProvider} with required build metadata and client builder.
+     *
+     * @param gitProperties build-time git metadata provider
+     * @param restClientBuilder auto-configured builder for establishing REST connections
+     */
     public GitlabProvider(final GitProperties gitProperties, final RestClient.Builder restClientBuilder) {
         this.gitProperties = gitProperties;
         this.restClientBuilder = restClientBuilder;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public de.haevn.worksuite.vcs.VcsProvider getProvider() {
         return de.haevn.worksuite.vcs.VcsProvider.GITLAB;
     }
 
     /**
-     * Creates a new GitLab merge request automatically resolving the matching feature branch for the ticket.
-     * (Currently commented out in favor of pure REST read workflows)
+     * {@inheritDoc}
      */
     @Override
     public String createMergeRequest(final long ticketId, final MrProtocolRequest protocol) {
-        /*
-        log.info("Initiating merge request creation for ticket #{}", ticketId);
-        try {
-            final GitLabUser currentUser = getCurrentUser();
-
-            final ResolvedBranch resolvedBranch = resolveBranchOptimized(ticketId)
-                .orElseThrow(() -> new NotFoundException("No branch found for ticket #" + ticketId));
-
-            final GitLabProject targetProject = resolvedBranch.project();
-            final String sourceBranch = resolvedBranch.branchName();
-
-            final String targetBranch = isNotBlank(targetProject.defaultBranch())
-                ? targetProject.defaultBranch()
-                : DEFAULT_TARGET_BRANCH;
-
-            final String mrTitle = isNotBlank(protocol.title())
-                ? protocol.title().trim()
-                : "[#" + ticketId + "] Merge branch " + sourceBranch + " into " + targetBranch;
-
-            final record CreateMrPayload(
-                @JsonProperty("source_branch") String sourceBranch,
-                @JsonProperty("target_branch") String targetBranch,
-                @JsonProperty("title") String title,
-                @JsonProperty("description") String description,
-                @JsonProperty("remove_source_branch") boolean removeSourceBranch,
-                @JsonProperty("squash") boolean squash,
-                @JsonProperty("assignee_id") Long assigneeId
-            ) {}
-
-            final CreateMrPayload payload = new CreateMrPayload(
-                sourceBranch,
-                targetBranch,
-                mrTitle,
-                buildMrDescription(protocol),
-                true,
-                true,
-                currentUser.id()
-            );
-
-            final AssignedMergeRequest createdMr = getRestClient().post()
-                .uri("/projects/{projectId}/merge_requests", targetProject.id())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(payload)
-                .retrieve()
-                .body(AssignedMergeRequest.class);
-
-            if (createdMr == null) {
-                throw new IllegalStateException("Empty response returned by GitLab on MR creation.");
-            }
-
-            log.info("Successfully created merge request #{} in project {}: {}",
-                createdMr.iid(), targetProject.pathWithNamespace(), createdMr.webUrl());
-
-            return createdMr.webUrl();
-        } catch (final Exception e) {
-            log.error("GitLab REST error while creating merge request for ticket #{}: {}", ticketId, e.getMessage(), e);
-            throw new RuntimeException("Failed to create merge request in GitLab: " + e.getMessage(), e);
-        }
-        */
         throw new UnsupportedOperationException("createMergeRequest is currently disabled.");
     }
 
@@ -170,15 +115,13 @@ public class GitlabProvider implements VcsProvider {
     public List<MergeRequestDto> getPendingReviews() {
         try {
             final GitLabUser currentUser = getCurrentUser();
-            final long currentUserId = currentUser.id();
+            final Long currentUserId = currentUser.id();
 
-            // GitLab REST Endpoint: GET /api/v4/merge_requests?scope=all&state=opened&reviewer_id=<id>
             final List<AssignedMergeRequest> mergeRequests = getRestClient().get()
                 .uri(uriBuilder -> uriBuilder
                     .path("/merge_requests")
-                    .queryParam("scope", "all")
+                    .queryParam("scope", "reviews_for_me")
                     .queryParam("state", "opened")
-                    .queryParam("reviewer_id", currentUserId)
                     .queryParam("per_page", 100)
                     .build())
                 .retrieve()
@@ -282,7 +225,10 @@ public class GitlabProvider implements VcsProvider {
     }
 
     /**
-     * Resolves matching feature/fix branch across member projects via REST API.
+     * Scans configured target repositories to locate a source branch conforming to ticket naming patterns.
+     *
+     * @param ticketId the unique numerical ticket identifier
+     * @return an {@link Optional} containing the {@link ResolvedBranch}, or empty if not located
      */
     public Optional<ResolvedBranch> resolveBranchOptimized(final long ticketId) {
         final Pattern pattern = Pattern.compile("^(fix|feature)/" + ticketId + "([-/_].*)?$", Pattern.CASE_INSENSITIVE);
@@ -323,7 +269,10 @@ public class GitlabProvider implements VcsProvider {
     }
 
     /**
-     * Builds and configures an authenticated {@link RestClient}.
+     * Builds and configures an authenticated {@link RestClient} instance.
+     *
+     * @return an initialized {@link RestClient}
+     * @throws IllegalStateException if the user integration context does not contain a personal access token
      */
     private RestClient getRestClient() {
         final UserIntegrationContext ctx = UserContextHolder.getContext();
@@ -340,6 +289,12 @@ public class GitlabProvider implements VcsProvider {
             .build();
     }
 
+    /**
+     * Retrieves the profile information of the currently authenticated GitLab user.
+     *
+     * @return the resolved {@link GitLabUser}
+     * @throws IllegalStateException if the user details cannot be resolved
+     */
     private GitLabUser getCurrentUser() {
         final GitLabUser user = getRestClient().get()
             .uri("/user")
@@ -352,13 +307,25 @@ public class GitlabProvider implements VcsProvider {
         return user;
     }
 
+    /**
+     * Resolves metadata for repositories explicitly configured in the target repository list property.
+     *
+     * @return a list of matching {@link GitLabProject} models
+     */
     private List<GitLabProject> getMemberProjects() {
         final RestClient client = getRestClient();
         final List<GitLabProject> projects = new ArrayList<>();
+
+        if (StringUtils.isBlank(targetRepoList)) {
+            return projects;
+        }
+
         final List<Long> targetList = Arrays.stream(targetRepoList.split(";"))
+            .map(String::trim)
             .filter(StringUtils::isNotBlank)
             .map(Long::parseLong)
             .toList();
+
         for (final Long projectId : targetList) {
             try {
                 final GitLabProject project = client.get()
@@ -370,26 +337,32 @@ public class GitlabProvider implements VcsProvider {
                     projects.add(project);
                 }
             } catch (final Exception ex) {
-                log.warn("Failed to fetch project details for hardcoded project ID {}: {}", projectId, ex.getMessage());
+                log.warn("Failed to fetch project details for configured project ID {}: {}", projectId, ex.getMessage());
             }
         }
 
         return projects;
     }
 
+    /**
+     * Maps a GitLab REST API merge request payload to a unified {@link MergeRequestDto}.
+     *
+     * @param mr the raw {@link AssignedMergeRequest} payload
+     * @return the normalized {@link MergeRequestDto}
+     */
     private MergeRequestDto mapToMergeRequestDto(final AssignedMergeRequest mr) {
         final MergeRequestDto.AuthorDto authorDto = new MergeRequestDto.AuthorDto(
             mr.author() != null ? mr.author().name() : "Unknown",
             mr.author() != null ? mr.author().avatarUrl() : null
         );
 
-        final boolean isApproved = false; // Wird bei Bedarf über GET /projects/:id/merge_requests/:iid/approvals angereichert
+        final boolean isApproved = false;
         final boolean isDraft = (mr.title() != null && mr.title().startsWith(DRAFT_PREFIX));
         final PipelineStatus pipelineStatus = PipelineStatus.SKIPPED;
 
         return new MergeRequestDto(
             String.valueOf(mr.id()),
-            mr.iid(),
+            mr.iid() != null ? mr.iid() : 0L,
             mr.title(),
             authorDto,
             mr.sourceBranch(),
@@ -405,6 +378,12 @@ public class GitlabProvider implements VcsProvider {
         );
     }
 
+    /**
+     * Aggregates open merge requests and latest default branch pipeline status for a repository.
+     *
+     * @param project the target {@link GitLabProject}
+     * @return the populated {@link RepositoryDTO}
+     */
     private RepositoryDTO mapToGitLabRepository(final GitLabProject project) {
         List<MergeRequestDto> openMrDtos = Collections.emptyList();
         String lastPipelineStatus = PipelineStatus.SKIPPED.name().toLowerCase();
@@ -446,7 +425,7 @@ public class GitlabProvider implements VcsProvider {
         }
 
         return new RepositoryDTO(
-            project.id(),
+            project.id() != null ? project.id() : 0L,
             project.webUrl(),
             project.name(),
             lastPipelineStatus,
@@ -456,6 +435,12 @@ public class GitlabProvider implements VcsProvider {
         );
     }
 
+    /**
+     * Normalizes a raw string status representation from GitLab into a typed {@link PipelineStatus}.
+     *
+     * @param status raw status string returned by GitLab
+     * @return mapped {@link PipelineStatus} enum constant
+     */
     private PipelineStatus mapPipelineStatus(final String status) {
         if (status == null) {
             return PipelineStatus.SKIPPED;
@@ -470,14 +455,32 @@ public class GitlabProvider implements VcsProvider {
         };
     }
 
+    /**
+     * Checks whether a given string is non-null and not blank.
+     *
+     * @param str the candidate string to evaluate
+     * @return {@code true} if text is present; {@code false} otherwise
+     */
     private boolean isNotBlank(final String str) {
         return str != null && !str.isBlank();
     }
 
+    /**
+     * Removes trailing slashes from endpoint URLs to ensure consistent path construction.
+     *
+     * @param url the raw URL string
+     * @return sanitized URL string without trailing slash
+     */
     private String sanitizeBaseUrl(final String url) {
         return (url != null && url.endsWith("/")) ? url.substring(0, url.length() - 1) : url;
     }
 
+    /**
+     * Immutable value container pairing a matched {@link GitLabProject} with its verified source branch name.
+     *
+     * @param project the parent GitLab project
+     * @param branchName the resolved branch name (e.g. {@code feature/4021-add-vcs})
+     */
     public record ResolvedBranch(GitLabProject project, String branchName) {
         public ResolvedBranch {
             Objects.requireNonNull(project, "Project must not be null");
@@ -485,8 +488,12 @@ public class GitlabProvider implements VcsProvider {
         }
     }
 
-    // Interne Hilfs-Records für Sub-Ressourcen
-    private record GitLabProtectedBranch(String name) {}
-    private record GitLabCommit(String id, String title) {}
-    private record GitLabBranch(String name) {}
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record GitLabProtectedBranch(@JsonProperty("name") String name) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record GitLabCommit(@JsonProperty("id") String id, @JsonProperty("title") String title) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record GitLabBranch(@JsonProperty("name") String name) {}
 }
