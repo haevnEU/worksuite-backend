@@ -87,5 +87,9 @@ public class UserModel {
         if (this.licenseExpiration == null) {
             this.licenseExpiration = Instant.now().plus(DEFAULT_TRIAL_DAYS, ChronoUnit.DAYS);
         }
+
+        if(this.preferences == null) {
+            this.preferences = UserPreference.defaultPreferences();
+        }
     }
 }

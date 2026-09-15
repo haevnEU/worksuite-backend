@@ -88,7 +88,18 @@ public class UserService {
     @Transactional
     public void setRedmineKey(final UUID id, final String redmineKey) {
         final UserModel model = getUser(id);
-        model.getPreferences().getTicketPreference().setTicketToken(redmineKey);
+        final UserPreference current =
+            model.getPreferences() != null ? model.getPreferences() : UserPreference.defaultPreferences();
+
+        final var currentTicketPref =
+            current.ticketPreference() != null ? current.ticketPreference() : new UserPreference.TicketPreference();
+
+        final var updatedTicketPref = new UserPreference.TicketPreference(redmineKey, currentTicketPref.provider());
+
+        final var updatedPreferences =
+            new UserPreference(current.generalPreference(), current.gitPreference(), updatedTicketPref);
+
+        model.setPreferences(updatedPreferences);
         userRepository.save(model);
 
         broadcastEvent(Priority.INFO, EVENT_REDMINE_KEY_ADDED.formatted(id));
@@ -103,7 +114,19 @@ public class UserService {
     @Transactional
     public void setVcsKey(final UUID id, final String vcsKey) {
         final UserModel model = getUser(id);
-        model.getPreferences().getGitPreference().setVcsToken(vcsKey);
+        final UserPreference current =
+            model.getPreferences() != null ? model.getPreferences() : UserPreference.defaultPreferences();
+
+        final var currentGitPref =
+            current.gitPreference() != null ? current.gitPreference() : new UserPreference.GitPreference();
+
+        final var updatedGitPref =
+            new UserPreference.GitPreference(vcsKey, currentGitPref.provider(), currentGitPref.watchedRepos());
+
+        final var updatedPreferences =
+            new UserPreference(current.generalPreference(), updatedGitPref, current.ticketPreference());
+
+        model.setPreferences(updatedPreferences);
         userRepository.save(model);
 
         broadcastEvent(Priority.INFO, EVENT_VCS_KEY_ADDED.formatted(id));
