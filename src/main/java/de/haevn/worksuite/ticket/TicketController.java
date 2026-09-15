@@ -224,4 +224,31 @@ public class TicketController {
         log.info("Adding comment to ticket #{} via provider {}", id, provider);
         ticketService.addComment(provider, id, comment);
     }
+
+    /**
+     * Books work time directly against a project in the ticket provider and local tracking repository.
+     *
+     * @param projectId project identifier
+     * @param provider the ticket provider type (defaults to REDMINE)
+     * @param request validated {@link LogTimeRequest} payload
+     */
+    @Operation(summary = "Log project work time",
+        description = "Logs hours and minutes directly against a project in the provider and local storage.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Project time logged successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid time booking data",
+            content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
+    })
+    @PostMapping(value = "/projects/{projectId}/time-entries", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public void bookProject(
+        @Parameter(description = "Project identifier", example = "12", required = true)
+        @PathVariable final long projectId,
+        @Parameter(description = "Ticket provider type (defaults to REDMINE)", example = "REDMINE")
+        @RequestParam(name = "provider", defaultValue = "REDMINE") final TicketProviderType provider,
+        @Valid @RequestBody final LogTimeRequest request
+    ) {
+        log.info("Booking {}h {}m on project #{} via provider {}", request.hours(), request.minutes(), projectId, provider);
+        ticketService.bookProject(provider, projectId, request);
+    }
 }

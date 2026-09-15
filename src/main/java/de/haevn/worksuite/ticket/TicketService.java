@@ -123,4 +123,9 @@ public class TicketService {
         final TicketProvider provider = ticketProviderRegistry.getTicketProvider(providerType);
         return provider.getInfo(infoType);
     }
+
+    public void bookProject(final TicketProviderType providerType, final long projectId, final @Valid LogTimeRequest request) {
+        final TicketProvider provider = ticketProviderRegistry.getTicketProvider(providerType);
+        provider.bookProject(projectId, request);
+    }
 }

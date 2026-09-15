@@ -33,7 +33,7 @@ bootRun {
 }
 
 dependencies {
-    implementation 'de.haevn:redmineclient:1.5-SNAPSHOT'
+    implementation 'de.haevn:redmineclient:1.6-SNAPSHOT'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-java8time:3.0.4.RELEASE'
     implementation 'org.gitlab4j:gitlab4j-api:6.3.0'

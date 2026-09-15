@@ -199,6 +199,18 @@ public class RedmineProvider implements TicketProvider {
         }
     }
 
+    @Override
+    public void bookProject(final long projectId, final LogTimeRequest request) {
+        try {
+            getClient().logProjectTime(projectId, request.hours(), request.minutes(), request.comment(),
+                (int) request.activityId(), request.day());
+            this.timeService.book(projectId, request);
+        } catch (final RedmineException e) {
+            log.error("Failed to log time against Redmine for project #{}", projectId, e);
+            throw new RuntimeException("Failed to book project in Redmine: " + e.getMessage(), e);
+        }
+    }
+
     /**
      * Maps a Redmine {@link Issue} model to the domain {@link Ticket} DTO.
      *

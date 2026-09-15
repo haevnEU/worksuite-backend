@@ -120,4 +120,6 @@ public interface TicketProvider {
      * @return list of {@link InfoResponse} entries
      */
     List<InfoResponse> getInfo(InfoType infoType);
+
+    void bookProject(long projectId, @Valid LogTimeRequest request);
 }
